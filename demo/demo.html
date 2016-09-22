@@ -12,6 +12,7 @@
   <link rel="import" href="../raml-js-parser.html">
   <link rel="import" href="../../file-drop/file-drop.html">
   <link rel="import" href="../../paper-button/paper-button.html">
+  <link rel="import" href="../../paper-spinner/paper-spinner.html">
 
   <style is="custom-style" include="demo-pages-shared-styles">
 
@@ -39,6 +40,10 @@
         <template is="dom-repeat" items="[[entryPoints]]" index-as="index">
           <p>[[item.path]][[item.name]] <paper-button raised on-tap="_useEntryPoint">use this</paper-button></p>
         </template>
+      </section>
+
+      <section class="loader">
+        <paper-spinner active="[[working]]"></paper-spinner>
       </section>
 
       <output id="out"></output>

@@ -5,6 +5,7 @@
   scope.multipleEntryPoints = false;
   scope.entryPoints = [];
   scope.ramlFile = undefined;
+  scope.working = false;
 
   var parser = {
     candidates: [],
@@ -148,15 +149,20 @@
   };
 
   scope.parseRaml = (item) => {
+    scope.working = true;
     scope.ramlFile = item;
     scope.$.parser.loadFiles()
     .then((api) => {
-      // console.log('API', api);
-      let txt = JSON.strignify(api.toJSON());
-      scope.$.out.innerText = txt;
+      console.log('API', api);
+      window.setTimeout(() => {
+        let txt = JSON.stringify(api.toJSON());
+        scope.$.out.innerText = txt;
+        scope.working = false;
+      }, 1000);
     })
     .catch((e) => {
       console.warn('API error', e);
+      scope.working = false;
     });
   };
 
