@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+
+  <title>raml-js-parser demo</title>
+
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+  <link rel="import" href="../raml-js-parser.html">
+  <link rel="import" href="../../file-drop/file-drop.html">
+  <link rel="import" href="../../paper-button/paper-button.html">
+
+  <style is="custom-style" include="demo-pages-shared-styles">
+
+    .vertical-section-container {
+      max-width: 600px;
+    }
+
+  </style>
+</head>
+<body unresolved>
+  <template is="dom-bind" id="app">
+
+    <raml-js-parser files="[[files]]" raml-file="[[ramlFile.entry]]" id="parser"></raml-js-parser>
+
+    <div class="vertical-section-container centered">
+      <file-drop multiple on-file-accepted="_processFile"></file-drop>
+      <section class="no-entry-point" hidden$="[[!noEntryPoint]]">
+        <h3>No entry point founded</h3>
+        <p>The app scanned files and there were no candidates for entry point raml file. Please, try again.</p>
+      </section>
+
+      <section class="multiple-entry-points" hidden$="[[!multipleEntryPoints]]">
+        <h3>Multiple entry points founded</h3>
+        <p>Please, select file that is the entry point to the API definition.</p>
+        <template is="dom-repeat" items="[[entryPoints]]" index-as="index">
+          <p>[[item.path]][[item.name]] <paper-button raised on-tap="_useEntryPoint">use this</paper-button></p>
+        </template>
+      </section>
+
+      <output id="out"></output>
+    </div>
+
+  </template>
+  <script src="demo.js"></script>
+</body>
+</html>

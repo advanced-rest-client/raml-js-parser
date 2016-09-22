@@ -1,0 +1,285 @@
+<!--
+@license
+Copyright 2016 The Advanced REST client authors
+Licensed under the Apache License, Version 2.0 (the "License"); you may not
+use this file except in compliance with the License. You may obtain a copy of
+the License at
+http://www.apache.org/licenses/LICENSE-2.0
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+License for the specific language governing permissions and limitations under
+the License.
+-->
+<link rel="import" href="../polymer/polymer.html">
+<script src="raml-1-parser.js"></script>
+<!--
+`<raml-js-parser>` RAML parser (JS version) as a web component
+
+### Example
+```
+<raml-js-parser></raml-js-parser>
+```
+
+@group UI Elements
+@element raml-js-parser
+@demo demo/index.html
+-->
+<dom-module id="raml-js-parser">
+  <template>
+    <style>
+     :host {
+      display: none;
+    }
+    </style>
+  </template>
+  <script>
+  (function() {
+    'use strict';
+    /* global chrome */
+    var importLocation = '';
+    if (window.currentImport && window.currentImport.URL) {
+      let url = window.currentImport.URL;
+      let path = url.substr(url.indexOf('/', url.indexOf('/') + 2))
+        .replace('raml-js-parser.html', '');
+      let lastDot = path.lastIndexOf('.');
+      if (lastDot !== -1 && path.substr(lastDot + 1) === 'html') {
+        // remove element file name path
+        path = path.substr(0, path.lastIndexOf('/') + 1);
+      }
+      importLocation = path;
+    }
+
+    class RamlJsParser {
+      beforeRegister() {
+        this.is = 'raml-js-parser';
+        this._eventTarget = null;
+
+        this.properties = {
+          /**
+           * A file entry object with the RAML spec.
+           * The file can be obtained using web filesystem or file input.
+           */
+          ramlFile: Object,
+          /**
+           * List of files (from web filesystem) where the parser should
+           * look for a libraries.
+           */
+          files: Array
+        };
+      }
+
+      attached() {
+        this._eventTarget = Polymer.dom(this).host || document;
+        this.listen(this._eventTarget, 'parse-raml', '_parseRamlHandler');
+      }
+
+      detached() {
+        this.unlisten(this._eventTarget, 'parse-raml', '_parseRamlHandler');
+      }
+
+      _parseRamlHandler(event) {
+        // Always stop the event from being propagated.
+        event.stopImmediatePropagation();
+        if (event.detail.apiPath) {
+          event.detail.raml = this.loadApi(event.detail.apiPath);
+        } else if (event.detail.ramlContent) {
+          event.detail.raml = this.parseRaml(event.detail.ramlContent);
+        }
+      }
+
+      /**
+       * Parses RAML file content.
+       *
+       * @param {String} content The RAML file content to parse.
+       * @return {Promise} A promise that will resolve itself when the conent was parsed and rejects when error occured.
+       */
+      parseRaml(content) {
+        return RAML.Parser.parseRAML(content, {
+          fsResolver: {
+            contentAsync: (path) => {
+              // console.log('fsResolver::contentAsync', path);
+              return new Promise((resolve, reject) => {
+                this.findEntry(path).then((entry) => {
+                  if (!entry) {
+                    reject(new Error('Entry not found.'));
+                    return;
+                  }
+                  if (entry.isFile) { // typeof FileEntry
+                    entry.file((result) => {
+                      let reader = new FileReader();
+                      reader.addEventListener('loadend', (e) => {
+                        resolve(reader.result);
+                      });
+                      reader.addEventListener('error', (e) => {
+                        reject(e);
+                      });
+                      reader.readAsText(result);
+                    });
+                  } else if (!entry.isDirectory) {
+                    let reader = new FileReader();
+                    reader.addEventListener('loadend', (e) => {
+                      resolve(reader.result);
+                    });
+                    reader.addEventListener('error', (e) => {
+                      reject(e);
+                    });
+                    reader.readAsText(entry);
+                  }
+                }).catch(reject);
+              });
+            },
+            listAsync: (path) => {
+              console.log('fsResolver::contentAsync', path);
+
+              // TODO: find a file entry in the files that matches path
+              return new Promise((reject, resolve) => {
+                let reader = entry.createReader();
+                let all = [];
+                var readEntries = () => {
+                  reader.readEntries((results) => {
+                    if (!results.length) {
+                      Promise.all(all).then(resolve);
+                    } else {
+                      for (let i = 0; i < results.length; i++) {
+                        all.push(this._processEntryAccept(results[i]));
+                      }
+                      readEntries();
+                    }
+                  }, reject);
+                };
+                readEntries();
+              });
+            }
+          },
+          httpResolver: {
+            getResourceAsync: (path) => {
+              console.log('httpResolver::getResourceAsync', path);
+              return new Promise((reject, resolve) => {});
+            }
+          }
+        });
+      }
+
+      loadApi(url) {
+        return RAML.Parser.loadApi(url);
+        //loadRAML
+      }
+
+      // Load API from file defined in `ramlFile` attribute
+      loadFiles() {
+        return new Promise((resolve, reject) => {
+          if (!this.ramlFile) {
+            reject(new Error('No file entry available'));
+            return;
+          }
+          if (this.ramlFile.isFile) { // typeof FileEntry
+            this.ramlFile.file((result) => {
+              let reader = new FileReader();
+              reader.addEventListener('loadend', (e) => {
+                resolve(this.parseRaml(reader.result));
+              });
+              reader.addEventListener('error', (e) => {
+                reject(e);
+              });
+              reader.readAsText(result);
+            });
+          } else if (!this.ramlFile.isDirectory) {
+            let reader = new FileReader();
+            reader.addEventListener('loadend', (e) => {
+              resolve(this.parseRaml(reader.result));
+            });
+            reader.addEventListener('error', (e) => {
+              reject(e);
+            });
+            reader.readAsText(this.ramlFile);
+          }
+        });
+      }
+
+      findEntry(path) {
+        var entries = this.files;
+        if (!entries) {
+          return Promise.reject(new Error('No files available.'));
+        }
+        return new Promise((resolve, reject) => {
+          // quick run to find a file in a root dir
+          for (let i = 0, len = entries.length; i < len; i++) {
+            let entry = entries[i];
+            if (!entry.isDirectory) {
+              if (entry.fullPath === path) {
+                resolve(entry);
+                return;
+              }
+            }
+          }
+          var all = [];
+          entries.forEach((item) => {
+            let rootPath = null;
+            if (item.isDirectory) {
+
+            }
+            all.push(this._processEntryPath(item, path));
+          });
+          Promise.all(all).then((entries) => {
+            entries = entries.filter((item) => item !== null);
+            if (entries.length > 0) {
+              resolve(entries[0]);
+              return;
+            }
+            resolve(null);
+          });
+        });
+      }
+
+      _processEntryPath(entry, path) {
+        if (entry.isDirectory) {
+          return new Promise((resolve, reject) => {
+            let reader = entry.createReader();
+            let all = [];
+            var readEntries = () => {
+              reader.readEntries((results) => {
+                if (!results.length) {
+                  Promise.all(all).then((candidates) => {
+                    candidates = candidates.filter((item) => item !== null);
+                    if (candidates.length === 0) {
+                      resolve(null);
+                      return;
+                    } else {
+                      let list = [];
+                      for (var i = 0, len = candidates.length; i < len; i++) {
+                        var item = candidates[i];
+                        if (item instanceof Array) {
+                          if (item.length > 0) {
+                            resolve(item[0]);
+                            return;
+                          }
+                        } else {
+                          resolve(item);
+                          return;
+                        }
+                      }
+                    }
+                  });
+                } else {
+                  for (let i = 0; i < results.length; i++) {
+                    all.push(this._processEntryPath(results[i], path));
+                  }
+                  readEntries();
+                }
+              }, reject);
+            };
+            readEntries();
+          });
+        } else {
+          if (entry.fullPath === path) {
+            return Promise.resolve(entry);
+          }
+        }
+        return Promise.resolve(null);
+      }
+    }
+    Polymer(RamlJsParser);
+  })();
+  </script>
+</dom-module>
