@@ -9,35 +9,84 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 <html>
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
 
-    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
-    <script src="../../web-component-tester/browser.js"></script>
-    <script src="../../iron-test-helpers/test-helpers.js"></script>
-    <script src="../../iron-test-helpers/mock-interactions.js"></script>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <script src="../../web-component-tester/browser.js"></script>
+  <script src="../../iron-test-helpers/test-helpers.js"></script>
+  <script src="../../iron-test-helpers/mock-interactions.js"></script>
+  <!-- Step 1: import the element to test -->
+  <link rel="import" href="../raml-js-parser.html">
+</head>
 
-    <!-- Step 1: import the element to test -->
-    <link rel="import" href="../raml-js-parser.html">
-  </head>
-  <body>
+<body>
+  <test-fixture id="basic">
+    <template>
+      <raml-js-parser></raml-js-parser>
+    </template>
+  </test-fixture>
+  <script>
+  /* global suite, test, fixture, assert */
+  suite('basic', function() {
 
-    <test-fixture id="basic">
-      <template>
-        <raml-js-parser></raml-js-parser>
-      </template>
-    </test-fixture>
+    var raml = `#%RAML 0.8
+title: XKCD
+baseUri: http://xkcd.com
+schemas:
+  - comic: !include schemas/comic-schema.json
+/{comicId}/info.0.json:
+  uriParameters:
+    comicId:
+      type: number
+  get:
+    description: |
+      Fetch comics and metadata  by comic id.
+    responses:
+      200:
+        body:
+          application/json:
+            schema: comic
+            example: !include examples/comic-example.json
+/info.0.json:
+  get:
+    description: |
+      Fetch current comic and metadata.
+    responses:
+      200:
+        body:
+          application/json:
+            schema: comic
+            example: !include examples/comic-example.json
+documentation:
+  - title: Headline
+    content: !include docs/headline.md`;
+    var ramlBlob = new Blob([raml], {
+      type: 'application/yaml'
+    });
 
-    <script>
-    /* global suite, test, fixture, assert */
-    suite('basic', function() {
-      test('`raml-js-parser` should be initialized', function() {
-        var element = fixture('basic');
-        assert.equal(element.isAttached, true, 'element.isAttached equals true');
+    test('Should parse remote file', function(done) {
+      var element = fixture('basic');
+      element.loadApi('https://raw.githubusercontent.com/raml-apis/XKCD/production/api.raml').then(() => {
+        done();
+      }).catch((err) => {
+        done(err);
       });
     });
-    </script>
 
-  </body>
+
+    test('Should parse local file', function(done) {
+      var element = fixture('basic');
+      element.ramlFile = ramlBlob;
+      element.loadFiles().then(() => {
+        done();
+      }).catch((err) => {
+        done(err);
+      });
+    });
+  });
+  </script>
+</body>
+
 </html>
