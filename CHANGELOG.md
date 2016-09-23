@@ -1,3 +1,13 @@
+<a name="1.0.2"></a>
+## [1.0.2](https://github.com/advanced-rest-client/raml-js-parser/compare/1.0.1...v1.0.2) (2016-09-23)
+
+
+### Fix
+
+* fixed dependency - moved file-drop element to dev dependencies ([6518d8587f52918bdef4aa874d4ce56adf12b2ee](https://github.com/advanced-rest-client/raml-js-parser/commit/6518d8587f52918bdef4aa874d4ce56adf12b2ee))
+
+
+
 <a name="1.0.1"></a>
 ## 1.0.1 (2016-09-23)
 
