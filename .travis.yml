@@ -19,12 +19,14 @@ script:
 - xvfb-run wct
 before_install:
 - openssl aes-256-cbc -K $encrypted_c6214cd3c769_key -iv $encrypted_c6214cd3c769_iv
-  -in github_rsa.pub.enc -out ~\/github_rsa.pub -d
+  -in github_rsa.enc -out github_rsa -d
 - openssl aes-256-cbc -K $encrypted_c6214cd3c769_key -iv $encrypted_c6214cd3c769_iv
-  -in github_rsa.enc -out ~\/github_rsa -d
+  -in github_rsa.pub.enc -out github_rsa.pub -d
 after_success:
-  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" && "$TRAVIS_BRANCH" = "stage"]; then bash arc stage; fi'
-  - 'if [ "$TRAVIS_PULL_REQUEST" = "false" && "$TRAVIS_BRANCH" = "master"]; then bash echo "TODO release"; fi'
+- if [ "$TRAVIS_PULL_REQUEST" = "false" && "$TRAVIS_BRANCH" = "stage"]; then bash
+  arc stage; fi
+- if [ "$TRAVIS_PULL_REQUEST" = "false" && "$TRAVIS_BRANCH" = "master"]; then bash
+  echo "TODO release"; fi
 cache:
   directories:
   - node_modules
