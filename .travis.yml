@@ -3,7 +3,7 @@ sudo: required
 dist: trusty
 node_js: stable
 before_script:
-- apt-get install git
+- sudo apt-get install git
 - npm install -g bower polylint web-component-tester arc-tools
 - bower install
 addons:
