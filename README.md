@@ -1,4 +1,4 @@
-# `<raml-js-parser>`
+# `<raml-js-parser>` 
 The RAML parser (JS version) as a web component.
 
 The `<raml-js-parser>` can accept an URL from where the API definition can be
