@@ -72,7 +72,7 @@ function processStage() {
 
 
 if [[ "${TRAVIS_PULL_REQUEST}" == "false" ]] && [[ "${TRAVIS_BRANCH}" == "stage" ]]; then
-  echo "Updating stage branch and marging with master..."
+  echo "Updating stage branch and merging with master..."
   processStage
   exit
 fi
