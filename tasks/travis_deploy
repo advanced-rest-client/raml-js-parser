@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+if [[ "${TRAVIS_PULL_REQUEST}" == "false" ]] && [[ "${TRAVIS_BRANCH}" == "stage" ]]; then
+  echo "Deploying branch to staging branch..."
+  ./node_modules/.bin/arc stage
+  exit
+fi
+
+if [[ "${TRAVIS_PULL_REQUEST}" == "false" ]] && [[ "${TRAVIS_BRANCH}" == "master" ]]; then
+  echo "Deploying release to master branch..."
+  exit
+fi

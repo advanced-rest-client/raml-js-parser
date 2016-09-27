@@ -4,7 +4,8 @@ dist: trusty
 node_js: stable
 before_script:
 - sudo apt-get install git
-- npm install -g bower polylint web-component-tester arc-tools
+- sudo npm install -g bower polylint web-component-tester
+- npm install arc-tools
 - bower install
 addons:
   firefox: '46.0'
@@ -18,10 +19,8 @@ script:
 - polylint
 - xvfb-run wct
 after_success:
-- if [ "$TRAVIS_PULL_REQUEST" = "false" && "$TRAVIS_BRANCH" = "stage"]; then bash
-  arc stage; fi
-- if [ "$TRAVIS_PULL_REQUEST" = "false" && "$TRAVIS_BRANCH" = "master"]; then bash
-  echo "TODO release"; fi
+- if [ "$TRAVIS_PULL_REQUEST" = "false" && "$TRAVIS_BRANCH" = "master"]; then bash echo "TODO release"; fi
+- "./tasks/travis_deploy"
 cache:
   directories:
   - node_modules
