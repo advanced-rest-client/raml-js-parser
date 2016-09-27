@@ -22,7 +22,7 @@ and `parse-raml-file` events and in a result the event details will contain the
 finish work.
 
 #### `parse-raml-url` event
-This event will be handled only if it contains the `path` property in the
+This event will be handled only if it contains the `url` property in the
 event detail object. It should be an URL to the RAML resource that will be
 downloaded.
 Note, that the web app has to have an CORS access to the resource in order to
