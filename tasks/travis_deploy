@@ -1,13 +1,14 @@
 #!/usr/bin/env bash
 
 set -e
-function setup() {
+function setupMaster() {
   git remote update
   git fetch
+  git checkout --track origin/master
 }
 function master() {
   # git pull origin master
-  git checkout origin/master || git checkout -t -b master origin/master || setup && git checkout --track origin/master || throwError "Unable to checkout master."
+  git checkout origin/master || git checkout -t -b master origin/master || setupMaster || throwError "Unable to checkout master."
 }
 function stage() {
   git checkout stage || throwError "Unable to checkout stage."
@@ -19,7 +20,7 @@ function version() {
 }
 function throwError() {
   echo $1
-  exit 1
+  exit 111
 }
 function processStage() {
   # First read version number from the master branch.
