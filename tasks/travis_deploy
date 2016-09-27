@@ -1,75 +1,47 @@
 #!/usr/bin/env bash
 
+set -e
+function setup() {
+  git remote update
+  git fetch
+}
 function master() {
   # git pull origin master
-  git checkout master || git checkout -t -b master origin/master
+  git checkout origin/master || git checkout -t -b master origin/master || setup && git checkout --track origin/master || throwError "Unable to checkout master."
 }
 function stage() {
-  git checkout stage
+  git checkout stage || throwError "Unable to checkout stage."
 }
-
 function version() {
   local __version=$1
   local version=`node -pe 'JSON.parse(process.argv[1]).version' "$(cat bower.json)"`
   eval $__version="'$version'"
 }
-function headHash() {
-  local __hash=$1
-  local gitHash=`git rev-parse --short HEAD`
-  eval $__hash="'$gitHash'"
-}
-function revertChanges() {
-  echo "Resetting branch after error to $1"
-  git reset --hard $1
-}
-function revertChangesAndExit() {
-  revertChanges $1
+function throwError() {
+  echo $1
   exit 1
 }
 function processStage() {
   # First read version number from the master branch.
-  master || {
-    echo "Can't switch to master."
-    exit 1
-  }
-  version elementVersion || {
-    echo "Error to read element version number."
-    exit 1
-  }
-  headHash masterHash || {
-    echo "Error to read maste's HEAD hash."
-    exit 1
-  }
+  master
+  version elementVersion || throwError "Error to read element version number."
   stage
-  headHash stageHash || {
-    echo "Can't read stage's HEAD hash :("
-    exit 1;
-  }
-  ./node_modules/.bin/arc bump $elementVersion || revertChangesAndExit $stageHash
-  ./node_modules/.bin/arc docs || revertChangesAndExit $stageHash
-  ./node_modules/.bin/arc changelog || revertChangesAndExit $stageHash
+  ./node_modules/.bin/arc bump $elementVersion || throwError "Unable to bump version"
+  ./node_modules/.bin/arc docs || throwError "Unable to generate docs"
+  ./node_modules/.bin/arc changelog || throwError "Unable to build changelog"
   git add -A
-  git commit -m "[CI] Automated commit after stage build (bump, docs, changelog)." || revertChangesAndExit $stageHash
+  git commit -m "[CI] Automated commit after stage build (bump, docs, changelog)." || throwError "Unable to commit changes to stage. Exiting."
 
   echo "Stage updated, merging with master"
   master
-  git merge --no-ff -m "[CI] Automated merge stage->master" stage || {
-    echo "Unable to merge changes to master."
-    stage
-    revertChangesAndExit $stageHash
-  }
+  git merge --no-ff -m "[CI] Automated merge stage->master" stage || throwError "Unable to merge changes to master. Exiting."
   git add -A
   git commit -m "[CI] Automated commit after merge stage->master"
-  git push origin master || {
-    echo "Unable to push changes to master."
-    revertChanges $masterHash
-    stage
-    revertChangesAndExit $stageHash
-  }
+  git push origin master || throwError "Unable to push changes to master. Exiting."
   stage
   git push origin stage || {
     echo "Changes to master has been made, however error occurred when pushing changes to the stage. Please, merge stage manually from master."
-    exit 1;
+    exit 0;
   }
 }
 
