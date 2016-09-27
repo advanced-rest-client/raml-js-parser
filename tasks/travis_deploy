@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-function getMasterData {
+function getMasterData() {
   local __version=$1
   local __hash=$2
 
@@ -19,7 +19,7 @@ function getMasterData {
 if [[ "${TRAVIS_PULL_REQUEST}" == "false" ]] && [[ "${TRAVIS_BRANCH}" == "stage" ]]; then
   echo "Updating stage branch and marging with master..."
 
-  getVersion version gitHash
+  getMasterData version gitHash
   echo "Element version $version, hash: $gitHash"
   # ./node_modules/.bin/arc stage
   exit
@@ -29,3 +29,6 @@ if [[ "${TRAVIS_PULL_REQUEST}" == "false" ]] && [[ "${TRAVIS_BRANCH}" == "master
   echo "Deploying release to master branch..."
   exit
 fi
+
+getMasterData version gitHash
+echo "Element version $version, hash: $gitHash"
