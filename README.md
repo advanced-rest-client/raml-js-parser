@@ -1,4 +1,3 @@
-
 # `<raml-js-parser>`
 The RAML parser (JS version) as a web component.
 
@@ -75,4 +74,3 @@ processFile = (e) => {
   });
 };
 ```
-
