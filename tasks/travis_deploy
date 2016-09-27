@@ -31,4 +31,8 @@ if [[ "${TRAVIS_PULL_REQUEST}" == "false" ]] && [[ "${TRAVIS_BRANCH}" == "master
 fi
 
 getMasterData version gitHash
-echo "Element version $version, hash: $gitHash"
+echo ""
+echo "Element version"
+echo $version
+echo "hash: "
+echo $gitHash
