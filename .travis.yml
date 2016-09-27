@@ -33,3 +33,4 @@ cache:
 before_install:
 - openssl aes-256-cbc -K $encrypted_c6214cd3c769_key -iv $encrypted_c6214cd3c769_iv
   -in keys.tar.enc -out keys.tar -d
+- tar xvf secrets.tar
