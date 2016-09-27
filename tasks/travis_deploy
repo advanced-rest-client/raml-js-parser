@@ -1,8 +1,27 @@
 #!/usr/bin/env bash
 
+function getMasterData {
+  local __version=$1
+  local __hash=$2
+
+  git pull origin master
+  git checkout master
+
+  local version=`node -pe 'JSON.parse(process.argv[1]).version' "$(cat bower.json)"`
+  local gitHash=`git rev-parse --short HEAD`
+
+  git checkout stage
+
+  eval $__version="'$version'"
+  eval $__hash="'$gitHash'"
+}
+
 if [[ "${TRAVIS_PULL_REQUEST}" == "false" ]] && [[ "${TRAVIS_BRANCH}" == "stage" ]]; then
   echo "Updating stage branch and marging with master..."
-  ./node_modules/.bin/arc stage
+
+  getVersion version gitHash
+  echo "Element version $version, hash: $gitHash"
+  # ./node_modules/.bin/arc stage
   exit
 fi
 
