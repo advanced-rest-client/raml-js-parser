@@ -2,7 +2,7 @@
 
 function master() {
   # git pull origin master
-  git checkout master
+  git checkout master || git checkout -t -b master origin/master
 }
 function stage() {
   git checkout stage
@@ -28,7 +28,10 @@ function revertChangesAndExit() {
 }
 function processStage() {
   # First read version number from the master branch.
-  master
+  master || {
+    echo "Can't switch to master."
+    exit 1
+  }
   version elementVersion || {
     echo "Error to read element version number."
     exit 1
@@ -42,26 +45,26 @@ function processStage() {
     echo "Can't read stage's HEAD hash :("
     exit 1;
   }
-  ./node_modules/.bin/arc bump $elementVersion || revertChangesAndExit stageHash
-  ./node_modules/.bin/arc docs || revertChangesAndExit stageHash
-  ./node_modules/.bin/arc changelog || revertChangesAndExit stageHash
+  ./node_modules/.bin/arc bump $elementVersion || revertChangesAndExit $stageHash
+  ./node_modules/.bin/arc docs || revertChangesAndExit $stageHash
+  ./node_modules/.bin/arc changelog || revertChangesAndExit $stageHash
   git add -A
-  git commit -m "[CI] Automated commit after stage build (bump, docs, changelog)." || revertChangesAndExit stageHash
+  git commit -m "[CI] Automated commit after stage build (bump, docs, changelog)." || revertChangesAndExit $stageHash
 
   echo "Stage updated, merging with master"
   master
   git merge --no-ff -m "[CI] Automated merge stage->master" stage || {
     echo "Unable to merge changes to master."
     stage
-    revertChangesAndExit stageHash
+    revertChangesAndExit $stageHash
   }
   git add -A
   git commit -m "[CI] Automated commit after merge stage->master"
   git push origin master || {
     echo "Unable to push changes to master."
-    revertChanges masterHash
+    revertChanges $masterHash
     stage
-    revertChangesAndExit stageHash
+    revertChangesAndExit $stageHash
   }
   stage
   git push origin stage || {
