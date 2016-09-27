@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
 
-function getMasterData() {
-  local __version=$1
-  local __hash=$2
-
-  git pull origin master
+function master() {
+  # git pull origin master
   git checkout master
-
-  local version=`node -pe 'JSON.parse(process.argv[1]).version' "$(cat bower.json)"`
-  local gitHash=`git rev-parse --short HEAD`
-
+}
+function stage() {
   git checkout stage
+}
 
+function version() {
+  local __version=$1
+  local version=`node -pe 'JSON.parse(process.argv[1]).version' "$(cat bower.json)"`
   eval $__version="'$version'"
+}
+function headHash() {
+  local __hash=$1
+  local gitHash=`git rev-parse --short HEAD`
   eval $__hash="'$gitHash'"
 }
 
@@ -30,9 +33,13 @@ if [[ "${TRAVIS_PULL_REQUEST}" == "false" ]] && [[ "${TRAVIS_BRANCH}" == "master
   exit
 fi
 
-getMasterData version gitHash
+master
+version elementVersion
+headHash masterHash
+stage
+
 echo ""
 echo "Element version"
-echo $version
+echo $elementVersion
 echo "hash: "
-echo $gitHash
+echo $masterHash
