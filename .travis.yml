@@ -19,7 +19,6 @@ script:
 - polylint
 - xvfb-run wct
 after_success:
-- if [ "$TRAVIS_PULL_REQUEST" = "false" && "$TRAVIS_BRANCH" = "master"]; then bash echo "TODO release"; fi
 - "./tasks/travis_deploy"
 cache:
   directories:
