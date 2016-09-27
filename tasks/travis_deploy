@@ -7,7 +7,9 @@ function setupMaster() {
   git checkout --track origin/master
 }
 function master() {
-  # git pull origin master
+  git branch -a
+  git fetch --all --prune
+  git pull origin master
   git checkout origin/master || git checkout -t -b master origin/master || setupMaster || throwError "Unable to checkout master."
 }
 function stage() {
@@ -58,5 +60,5 @@ if [[ "${TRAVIS_PULL_REQUEST}" == "false" ]] && [[ "${TRAVIS_BRANCH}" == "master
   exit
 fi
 
-echo "Nothing to do"
+echo "Nothing to do. Is RP: ${TRAVIS_PULL_REQUEST}, on branch ${TRAVIS_BRANCH}"
 exit
