@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+echo "TRAVIS_PULL_REQUEST: ${TRAVIS_PULL_REQUEST}, TRAVIS_BRANCH: ${TRAVIS_BRANCH} ($TRAVIS_PULL_REQUEST $TRAVIS_BRANCH)"
+echo `"${TRAVIS_PULL_REQUEST}" == "false"`
+
 if [[ "${TRAVIS_PULL_REQUEST}" == "false" ]] && [[ "${TRAVIS_BRANCH}" == "stage" ]]; then
   echo "Deploying branch to staging branch..."
   ./node_modules/.bin/arc stage
