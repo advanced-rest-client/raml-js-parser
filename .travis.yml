@@ -23,6 +23,9 @@ script:
 - polylint
 - xvfb-run wct
 after_success:
+- eval "$(ssh-agent -s)"
+- ssh-add github_id_rsa
+- ssh-add github_id_rsa.pem
 - ./tasks/travis_deploy
 cache:
   directories:
