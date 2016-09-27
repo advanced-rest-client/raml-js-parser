@@ -4,7 +4,6 @@ dist: trusty
 node_js: stable
 before_script:
 - npm install -g bower polylint web-component-tester
-- npm install arc-tools
 - bower install
 addons:
   firefox: '46.0'
