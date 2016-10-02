@@ -397,7 +397,6 @@ processFile = (e) => {
               resolve(entries[0]);
               return;
             }
-            // console.log('Can\'t find path', path);
             resolve(null);
           });
         });
@@ -435,7 +434,6 @@ processFile = (e) => {
           });
         } else {
           if (entry.fullPath === path) {
-            console.log('Resolving ', path, ' to ', entry.fullPath);
             return Promise.resolve(entry);
           } else if (entry.fullPath.substr(entry.fullPath.indexOf('/', 1)) === path) {
             // If the user dropped full directory the it need to remove first dir path

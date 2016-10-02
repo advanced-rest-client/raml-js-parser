@@ -76,7 +76,6 @@
                     });
                     candidates = list;
                   }
-                  // console.log('candidates', candidates);
                   resolve(candidates);
                 });
               } else {
