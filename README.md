@@ -76,3 +76,10 @@ processFile = (e) => {
 };
 ```
 
+
+
+### Events
+| Name | Description | Params |
+| --- | --- | --- |
+| api-parse-ready | Fired when the RAML file has been parsed and the result is ready. | result **Object** - The parsing result. |
+| error | Fired when error occurred while parsing the file. | error **Error** - The error object. |
