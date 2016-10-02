@@ -1,3 +1,29 @@
+<a name="1.0.6"></a>
+## [1.0.6](https://github.com/advanced-rest-client/raml-js-parser/compare/1.0.2...v1.0.6) (2016-10-02)
+
+
+### Fix
+
+* Fixed content file path resolution ([1c909b1be2c50d56c67cf7229258a7f8a83d9226](https://github.com/advanced-rest-client/raml-js-parser/commit/1c909b1be2c50d56c67cf7229258a7f8a83d9226))
+* Fixing travis file per missing directory while building ([1cc013484a5bc9fa1925b6f7bb183a9567e6fdc3](https://github.com/advanced-rest-client/raml-js-parser/commit/1cc013484a5bc9fa1925b6f7bb183a9567e6fdc3))
+* Fixing travis file per missing directory while building ([42d0a9ac50f97b8d9562814a8566393059ea00a4](https://github.com/advanced-rest-client/raml-js-parser/commit/42d0a9ac50f97b8d9562814a8566393059ea00a4))
+* Fixing travis file with ssh keys ([8e53b7d39fa694e8fb6ede4d6b3a54601e0babbf](https://github.com/advanced-rest-client/raml-js-parser/commit/8e53b7d39fa694e8fb6ede4d6b3a54601e0babbf))
+* Fixing travis file with ssh keys ([be9610d29c4a5b6394ffc492c342ffa3d717f391](https://github.com/advanced-rest-client/raml-js-parser/commit/be9610d29c4a5b6394ffc492c342ffa3d717f391))
+* Fixing travis file with ssh keys ([6088f5fdc63b0492757298ec4f0488bd891bd133](https://github.com/advanced-rest-client/raml-js-parser/commit/6088f5fdc63b0492757298ec4f0488bd891bd133))
+* Fixing travis file with ssh keys ([49d522efc8227a3015b87b62989dc78b14a345ce](https://github.com/advanced-rest-client/raml-js-parser/commit/49d522efc8227a3015b87b62989dc78b14a345ce))
+
+### New
+
+* Added cache directive to the travis.yaml file ([4c230fec236353a754db48a3191b398623c51a22](https://github.com/advanced-rest-client/raml-js-parser/commit/4c230fec236353a754db48a3191b398623c51a22))
+
+### Update
+
+* cleared demo and removed console.log from the component page ([02d848342e3656451338ba2e3f205f5640c5ee07](https://github.com/advanced-rest-client/raml-js-parser/commit/02d848342e3656451338ba2e3f205f5640c5ee07))
+* Removed console logging from the element file and demo page ([e4e98f291ea310d5c984fe009a02c43afc1ad646](https://github.com/advanced-rest-client/raml-js-parser/commit/e4e98f291ea310d5c984fe009a02c43afc1ad646))
+* Updated travis integration ([e6c07b50b87f8b1ca49c824fe08d6cce09100cfc](https://github.com/advanced-rest-client/raml-js-parser/commit/e6c07b50b87f8b1ca49c824fe08d6cce09100cfc))
+
+
+
 <a name="1.0.5"></a>
 ## [1.0.5](https://github.com/advanced-rest-client/raml-js-parser/compare/1.0.2...v1.0.5) (2016-10-02)
 
