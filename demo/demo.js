@@ -188,7 +188,12 @@
 
   scope._highlightApiJson = () => {
     window.setTimeout(() => {
-      let txt = JSON.stringify(scope.api.toJSON(), null, 2);
+      let obj = scope.api.expand(true).toJSON({
+        dumpSchemaContents: true,
+        rootNodeDetails: true,
+        serializeMetadata: true
+      });
+      let txt = JSON.stringify(obj);
       let event = scope.fire('syntax-highlight', {
         code: txt,
         lang: 'js'

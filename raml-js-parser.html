@@ -392,9 +392,6 @@ processFile = (e) => {
             }
           });
           Promise.all(all).then((entries) => {
-            if (path === '/securitySchemes/oauth_2_0.raml') {
-              console.log('entries', entries);
-            }
             entries = entries.filter((item) => item !== null);
             if (entries.length > 0) {
               resolve(entries[0]);
