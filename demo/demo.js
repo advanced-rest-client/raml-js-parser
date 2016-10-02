@@ -134,7 +134,6 @@
           entryPoints = [item];
         } else if (len === minLen) {
           // multiple candidates in current path.
-          console.log('multiple candidates in current path.');
           entryPoints.push(item);
         }
       });
