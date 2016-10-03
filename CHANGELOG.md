@@ -1,3 +1,17 @@
+<a name="1.0.7"></a>
+## [1.0.7](https://github.com/advanced-rest-client/raml-js-parser/compare/1.0.6...v1.0.7) (2016-10-03)
+
+
+### Docs
+
+* Updated demo page. It now uses the <raml-main-entry-lookup> element to search for the main entry point of the RAML api ([d9a4ff54ea706707c77f5cafb875dfd0fb54c658](https://github.com/advanced-rest-client/raml-js-parser/commit/d9a4ff54ea706707c77f5cafb875dfd0fb54c658))
+
+### Update
+
+* Updated component, now the event handler will not override the files array if the files parameter is not available and it can be set directly onthe element. Also updated element inline documentation and fixed formatting ([c4df38071df1eb8a90780565d992129b1d494678](https://github.com/advanced-rest-client/raml-js-parser/commit/c4df38071df1eb8a90780565d992129b1d494678))
+
+
+
 <a name="1.0.6"></a>
 ## [1.0.6](https://github.com/advanced-rest-client/raml-js-parser/compare/1.0.2...v1.0.6) (2016-10-02)
 
