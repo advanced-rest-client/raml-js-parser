@@ -20,6 +20,7 @@
   <link rel="import" href="../../paper-tabs/paper-tab.html">
   <link rel="import" href="../../iron-pages/iron-pages.html">
   <link rel="import" href="../../paper-input/paper-input.html">
+  <link rel="import" href="../../raml-main-entry-lookup/raml-main-entry-lookup.html">
 
   <style is="custom-style" include="demo-pages-shared-styles">
     html,
@@ -69,22 +70,21 @@
 </head>
 <body unresolved>
   <template is="dom-bind" id="app">
-    <raml-js-parser ></raml-js-parser>
+    <raml-js-parser></raml-js-parser>
 
     <div class="vertical-section-container centered">
-
       <h1>Drop RAML file here.</h1>
-      <file-drop multiple on-file-accepted="_processFile"></file-drop>
+      <file-drop multiple file="{{file}}" on-file-accepted="fileListChanged"></file-drop>
+      <raml-main-entry-lookup files="[[file]]" on-entry="entryFound"></raml-main-entry-lookup>
+
       <h2>Or enter RAML file URL here</h2>
       <div class="url-field">
         <paper-input label="RAML url" value="{{ramlFileUrl}}"></paper-input>
         <paper-button raised on-tap="_downloadRaml">Download</paper-button>
       </div>
 
-
-
       <section class="no-entry-point" hidden$="[[!noEntryPoint]]">
-        <h3>No entry point founded</h3>
+        <h3>No entry point found</h3>
         <p>The app scanned files and there were no candidates for entry point raml file. Please, try again.</p>
       </section>
 
