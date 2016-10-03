@@ -31,7 +31,8 @@
     "paper-tabs": "PolymerElements/paper-tabs#^1.6.2",
     "iron-pages": "PolymerElements/iron-pages#^1.0.8",
     "paper-input": "PolymerElements/paper-input#^1.1.20",
-    "file-drop": "advanced-rest-client/file-drop#^1.0.2"
+    "file-drop": "advanced-rest-client/file-drop#^1.0.2",
+    "raml-main-entry-lookup": "advanced-rest-client/raml-main-entry-lookup#^1.0.1"
   },
   "ignore": [
     "**/.*",
@@ -40,5 +41,5 @@
     "test",
     "tasks"
   ],
-  "version": "1.0.6"
+  "version": "1.0.7"
 }
