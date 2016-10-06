@@ -1,3 +1,14 @@
+<a name="1.0.8"></a>
+## [1.0.8](https://github.com/advanced-rest-client/raml-js-parser/compare/1.0.7...v1.0.8) (2016-10-06)
+
+
+### New
+
+* Added dependencyci ([f8332c156c2c0115a283ea23bdda6852a635c7ef](https://github.com/advanced-rest-client/raml-js-parser/commit/f8332c156c2c0115a283ea23bdda6852a635c7ef))
+* Added hero image ([d83d94dfcdc60264cb604825d8aef29bf35222a1](https://github.com/advanced-rest-client/raml-js-parser/commit/d83d94dfcdc60264cb604825d8aef29bf35222a1))
+
+
+
 <a name="1.0.7"></a>
 ## [1.0.7](https://github.com/advanced-rest-client/raml-js-parser/compare/1.0.6...v1.0.7) (2016-10-03)
 
