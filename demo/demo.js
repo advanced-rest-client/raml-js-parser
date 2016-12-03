@@ -53,12 +53,7 @@
     }
 
     event.detail.raml
-      .then((api) => {
-        scope.api = api;
-        scope._displayApiStructure();
-        // scope._highlightApiJson();
-        scope.errors = api.errors();
-      })
+      .then((result) => scope.handleParseResult(result))
       .catch((e) => {
         console.warn('API error', e);
         scope.working = false;
@@ -135,16 +130,22 @@
     }
 
     event.detail.raml
-      .then((api) => {
-        scope.api = api;
-        scope._displayApiStructure();
-        // scope._highlightApiJson();
-        scope.errors = api.errors();
-      })
+      .then((result) => scope.handleParseResult(result))
       .catch((e) => {
         console.warn('API error', e);
         scope.working = false;
       });
   };
+
+  scope.handleParseResult = (result) => {
+    scope.api = result[0];
+    scope._displayApiStructure(result[1].specification);
+    scope.errors = result[1].errors;
+    console.log(result[1]);
+  };
+
+  window.addEventListener('WebComponentsReady', function() {
+    scope._downloadRaml();
+  });
 
 })(document.querySelector('#app'));
