@@ -98,7 +98,7 @@ processFile = (e) => {
 <script>
 (function() {
 'use strict';
-/* global chrome */
+/* global RAML, RamlNormalizer */
 var importLocation = '';
 if (window.currentImport && window.currentImport.URL) {
   let url = window.currentImport.URL;
@@ -121,6 +121,7 @@ class RamlJsParser {
      *
      * @event api-parse-ready
      * @param {Object} result The parsing result.
+     * @param {Object} json (optional) Set when `normalizeRaml` property is set. JSON output.
      */
     /**
      * Fired when error occurred while parsing the file.
@@ -154,7 +155,23 @@ class RamlJsParser {
         type: Object,
         readOnly: true,
         notify: true
-      }
+      },
+      /**
+       * If true then the parser will extract JSON data and set it to the `json` property
+       * and normalise output for ARC components.
+       */
+      normalizeRaml: {
+        type: Boolean,
+        value: false
+      },
+      /**
+       * Latest JSON API structure. It will be set if `normalizeRaml` is set to true.
+       */
+      latestJson: {
+        type: Object,
+        readOnly: true,
+        notify: true
+      },
     };
   }
 
@@ -220,13 +237,9 @@ class RamlJsParser {
       httpResolver: {
         getResourceAsync: (path) => this.getResourceAsync(path)
       }
-    }).then((api) => {
-      this._setLatestResult(api);
-      this.fire('api-parse-ready', {
-        result: api
-      });
-      return api;
-    }).catch((err) => {
+    })
+    .then((api) => this.setApiData(api))
+    .catch((err) => {
       this._setLatestError(err);
       this.fire('error', {
         error: err
@@ -243,19 +256,39 @@ class RamlJsParser {
       httpResolver: {
         getResourceAsync: (path) => this.getResourceAsync(path)
       }
-    }).then((api) => {
-      this._setLatestResult(api);
-      this.fire('api-parse-ready', {
-        result: api
-      });
-      return api;
-    }).catch((err) => {
+    })
+    .then((api) => this.setApiData(api))
+    .catch((err) => {
       this._setLatestError(err);
       this.fire('error', {
         error: err
       });
       throw err;
     });
+  }
+  /**
+   * Sets parsed RAML data and assigns variables.
+   * If `normalize` is set then it also normalize parser's JSON output
+   */
+  setApiData(api) {
+    var result = {
+      result: api
+    };
+    if (this.normalizeRaml) {
+      let object = api.expand(true).toJSON({
+        dumpSchemaContents: false,
+        rootNodeDetails: true,
+        serializeMetadata: false
+      });
+      object.specification = RamlNormalizer.transform(object.specification);
+      this._setLatestJson(object);
+      result.json = object;
+    } else {
+      this._setLatestJson(undefined);
+    }
+    this._setLatestResult(api);
+    this.fire('api-parse-ready', result);
+    return this.normalizeRaml ? [api, result.json] : api;
   }
 
   /**
@@ -273,7 +306,7 @@ class RamlJsParser {
           entry.file((result) => {
             let reader = new FileReader();
             reader.addEventListener('loadend', (e) => {
-              resolve(reader.result);
+              resolve(e.target.result);
             });
             reader.addEventListener('error', (e) => {
               reject(e);
@@ -283,7 +316,7 @@ class RamlJsParser {
         } else if (!entry.isDirectory) {
           let reader = new FileReader();
           reader.addEventListener('loadend', (e) => {
-            resolve(reader.result);
+            resolve(e.target.result);
           });
           reader.addEventListener('error', (e) => {
             reject(e);
@@ -321,7 +354,7 @@ class RamlJsParser {
         this.ramlFile.file((result) => {
           let reader = new FileReader();
           reader.addEventListener('loadend', (e) => {
-            resolve(this.parseRaml(reader.result));
+            resolve(this.parseRaml(e.target.result));
           });
           reader.addEventListener('error', (e) => {
             reject(e);
@@ -331,7 +364,7 @@ class RamlJsParser {
       } else if (!this.ramlFile.isDirectory) {
         let reader = new FileReader();
         reader.addEventListener('loadend', (e) => {
-          resolve(this.parseRaml(reader.result));
+          resolve(this.parseRaml(e.target.result));
         });
         reader.addEventListener('error', (e) => {
           reject(e);
@@ -363,7 +396,7 @@ class RamlJsParser {
       (entries.length === 1 && entries[0] === this.ramlFile)) {
       return Promise.resolve(null);
     }
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       // quick run to find a file in a root dir
       for (let i = 0, len = entries.length; i < len; i++) {
         let entry = entries[i];

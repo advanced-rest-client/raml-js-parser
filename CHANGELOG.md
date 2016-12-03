@@ -1,3 +1,9 @@
+<a name="1.0.9"></a>
+## [1.0.9](https://github.com/advanced-rest-client/raml-js-parser/compare/1.0.8...v1.0.9) (2016-12-03)
+
+
+
+
 <a name="1.0.8"></a>
 ## [1.0.8](https://github.com/advanced-rest-client/raml-js-parser/compare/1.0.7...v1.0.8) (2016-10-06)
 
