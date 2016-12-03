@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/advanced-rest-client/raml-js-parser.svg?branch=master)](https://travis-ci.org/advanced-rest-client/raml-js-parser)  [![Dependency Status](https://dependencyci.com/github/advanced-rest-client/raml-js-parser/badge)](https://dependencyci.com/github/advanced-rest-client/raml-js-parser)  
+
+# raml-js-parser
 
 # `<raml-js-parser>`
 The RAML parser (JS version) as a web component.
@@ -82,4 +85,5 @@ processFile = (e) => {
 | Name | Description | Params |
 | --- | --- | --- |
 | api-parse-ready | Fired when the RAML file has been parsed and the result is ready. | result **Object** - The parsing result. |
+json **Object** - (optional) Set when `normalizeRaml` property is set. JSON output. |
 | error | Fired when error occurred while parsing the file. | error **Error** - The error object. |
