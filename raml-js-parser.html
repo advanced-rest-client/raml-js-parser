@@ -280,7 +280,8 @@ class RamlJsParser {
         rootNodeDetails: true,
         serializeMetadata: false
       });
-      object.specification = RamlNormalizer.transform(object.specification);
+      // object.specification = RamlNormalizer.transform(object.specification);
+      object.specification = raml2obj.parse(object.specification);
       this._setLatestJson(object);
       result.json = object;
     } else {
