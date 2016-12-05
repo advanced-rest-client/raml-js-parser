@@ -96,7 +96,6 @@ var RamlNormalizer = {
     if (Array.isArray(obj)) {
       return obj;
     }
-
     return Object.keys(obj).map(function(key) {
       if (RamlNormalizer.isObject(obj[key])) {
         obj[key].key = key;
@@ -280,17 +279,14 @@ var RamlNormalizer = {
     if (!needle || !source || !Object.getOwnPropertyNames(source).length) {
       return needle;
     }
-    for (var name in source) {
-      if (needle !== name) {
-        continue;
-      }
-      var type = source[name];
-      if (type.__isTranslated) {
-        return type;
-      }
-      return RamlNormalizer.clone(RamlNormalizer.transformTypes(type, source));
+    if (!(needle in source)) {
+      return needle;
     }
-    return needle;
+    var type = source[needle];
+    if (type.__isTranslated) {
+      return type;
+    }
+    return RamlNormalizer.clone(RamlNormalizer.transformTypes(type, source));
   },
   /**
    * It takes object sub types (if any object or array is the sub type) and promotes it's
@@ -454,35 +450,59 @@ var RamlNormalizer = {
    */
   translateTypeProperties: function(type, source) {
     if (!type.properties || !Object.getOwnPropertyNames(type.properties).length) {
+      if (type.type && type.type.type && RamlNormalizer.baseTypes.indexOf(type.type.type) !== -1) {
+        // Copy type's type's propertirs to current object
+        for (var _key in type.type) {
+          if (['name', 'displayName', 'type'].indexOf(_key) !== -1) {
+            continue;
+          }
+          type[_key] = type.type[_key];
+        }
+        type.type = type.type.type;
+      }
       return;
     }
     var name;
     var _type;
     var arrayType;
+    var len;
+    var i;
     var properties = RamlNormalizer.clone(type.properties);
-    if (properties instanceof Array) {
-      for (var i = 0, len = properties.length; i < len; i++) {
+    var isUnion = type.type === 'union';
+    if (isUnion && Array.isArray(properties)) {
+      for (i = 0, len = properties.length; i < len; i++) {
         for (name in properties[i]) {
-
-          _type = RamlNormalizer.getPropertyType(name, properties[i][name], source);
+          if (name === 'ownerTypes') {
+            delete properties[i].ownerTypes;
+            continue;
+          }
+          var _property = properties[i][name];
+          _type = RamlNormalizer.getPropertyType(name, _property, source);
           if (!_type) {
             continue;
           }
-          properties[i][name].type = _type;
+          _property.type = _type;
           if (_type === 'array') {
-            if (typeof properties[i][name].items === 'string') {
-              arrayType = [properties[i][name].items];
-            } else if (properties[i][name].items instanceof Array) {
-              arrayType = properties[i][name].items;
+            if (typeof _property.items === 'string') {
+              arrayType = [_property.items];
+            } else if (_property.items instanceof Array) {
+              arrayType = _property.items;
             } else {
               // It's already a type declaration
             }
             if (arrayType) {
-              properties[i][name].items = RamlNormalizer.getType(arrayType, source);
+              _property.items = RamlNormalizer.getType(arrayType, source);
               arrayType = undefined;
             }
+          } else if (_type.properties) {
+            _property.properties = Object.assign((_property.properties || {}),
+              _type.properties);
+            if (_property.type && _property.type.type === 'union') {
+              _property.type = 'union';
+            }
           }
-          RamlNormalizer.translateTypeProperties(properties[i][name], source);
+          RamlNormalizer.translateTypeProperties(_property, source);
+          // properties[i][name] = _property;
         }
       }
     } else {
@@ -504,11 +524,25 @@ var RamlNormalizer = {
             properties[name].items = RamlNormalizer.getType(arrayType, source);
             arrayType = undefined;
           }
+        } else if (_type.properties) {
+          var _ownProperties = properties[name].properties || {};
+          if (_type.type === 'union') {
+            for (i = 0, len = _type.properties.length; i < len; i++) {
+              _type.properties[i] = Object.assign(_ownProperties, _type.properties[i]);
+            }
+            properties[name].type = 'union';
+          } else {
+            _type.properties = Object.assign(_ownProperties, _type.properties);
+          }
+          properties[name].properties = _type.properties;
         }
         RamlNormalizer.translateTypeProperties(properties[name], source);
       }
     }
     type.properties = properties;
+    if (RamlNormalizer.isObject(type.type)) {
+      type.type = isUnion ? 'union' : 'object';
+    }
   },
 
   getPropertyType: function(name, property, source) {
@@ -530,7 +564,8 @@ var RamlNormalizer = {
       }
       for (var property in type.properties) {
         var propValue = type.properties[property];
-        if (!propValue.type || typeof propValue.type === 'string') {
+        if (!propValue.type || typeof propValue.type === 'string' &&
+          ['object', 'union'].indexOf(propValue.type) === -1) {
           continue;
         }
         var _subProp = RamlNormalizer.flattenTypeProperties(propValue);
@@ -540,7 +575,7 @@ var RamlNormalizer = {
               var __currentProperties = type.properties[property].properties;
               var __result = []; // Map would be better but don't make functions in a loop...
               for (var i = 0, len = _subProp.length; i < len; i++) {
-                __result[__result.length] = Object.assign({}, __currentProperties, _subProp[i]);
+                __result[__result.length] = Object.assign({}, __currentProperties[i], _subProp[i]);
               }
               type.properties[property].properties = __result;
             } else {

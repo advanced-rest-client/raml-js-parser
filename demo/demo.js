@@ -10,7 +10,7 @@
   scope.errors = [];
   scope.selectedOutput = 0;
   scope.ramlFileUrl =
-    'https://cdn.rawgit.com/advanced-rest-client/raml-example-api/master/api.raml';
+    'https://raw.githubusercontent.com/advanced-rest-client/raml-example-api/master/api.raml';
   scope.fileListChanged = () => {
     scope.hasData = false;
     scope.noEntryPoint = false;
@@ -141,7 +141,7 @@
     scope.api = result[0];
     scope._displayApiStructure(result[1].specification);
     scope.errors = result[1].errors;
-    console.log(result[1]);
+    console.log(result[1].specification);
   };
 
   window.addEventListener('WebComponentsReady', function() {
