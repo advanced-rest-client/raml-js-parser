@@ -1,3 +1,13 @@
+<a name="1.0.14"></a>
+## [1.0.14](https://github.com/advanced-rest-client/raml-js-parser/compare/1.0.13...v1.0.14) (2016-12-05)
+
+
+### Update
+
+* Removed own Normalizer and added Mulesoft's raml-parser-toolbelt to normalize the output ([e5cca5f2c9a46b8a10ff8a3711b9b44dbfd988a3](https://github.com/advanced-rest-client/raml-js-parser/commit/e5cca5f2c9a46b8a10ff8a3711b9b44dbfd988a3))
+
+
+
 <a name="1.0.13"></a>
 ## [1.0.13](https://github.com/advanced-rest-client/raml-js-parser/compare/1.0.12...v1.0.13) (2016-12-05)
 
