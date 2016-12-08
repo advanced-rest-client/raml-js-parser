@@ -1,6 +1,6 @@
 {
   "name": "raml-js-parser",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "license": "LICENSE.md",
   "description": "RAML parser (JS version) as a web component",
   "devDependencies": {
