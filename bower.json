@@ -39,7 +39,8 @@
     "node_modules",
     "bower_components",
     "test",
-    "tasks"
+    "tasks",
+    "old.*"
   ],
   "version": "1.0.15"
 }
