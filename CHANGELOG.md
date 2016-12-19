@@ -1,3 +1,13 @@
+<a name="1.1.1"></a>
+## [1.1.1](https://github.com/advanced-rest-client/raml-js-parser/compare/1.0.16...v1.1.1) (2016-12-19)
+
+
+### Docs
+
+* Bumped minor version number after refactoring and adding polyfills. Updated docs ([aba681b06fa5c4dc24d4e3d53fb6084ea3956e91](https://github.com/advanced-rest-client/raml-js-parser/commit/aba681b06fa5c4dc24d4e3d53fb6084ea3956e91))
+
+
+
 <a name="1.0.17"></a>
 ## [1.0.17](https://github.com/advanced-rest-client/raml-js-parser/compare/1.0.16...v1.0.17) (2016-12-08)
 
