@@ -79,6 +79,8 @@ processFile = (e) => {
 };
 ```
 
+The element contains a set of Polyfills so it will work in the IE11+ browsers.
+
 
 
 ### Events
@@ -87,3 +89,4 @@ processFile = (e) => {
 | api-parse-ready | Fired when the RAML file has been parsed and the result is ready. | result **Object** - The parsing result. |
 json **Object** - (optional) Set when `normalizeRaml` property is set. JSON output. |
 | error | Fired when error occurred while parsing the file. | error **Error** - The error object. |
+| raml-js-parser-ready | Fired when the element has been attached to the DOM and is ready to parse data. | __none__ |
