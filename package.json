@@ -17,8 +17,8 @@
   "scripts": {
     "serve": "node_modules/.bin/polymer serve",
     "lint": "node_modules/.bin/polymer lint raml-js-parser.html",
-    "test-sauce": "exit 0; node_modules/.bin/polymer test --plugin sauce --job-name \"raml-js-parser:local-test\"",
-    "test": "exit 0; node_modules/.bin/polymer test",
+    "test-sauce": "node_modules/.bin/polymer test --plugin sauce --job-name \"raml-js-parser:local-test\"",
+    "test": "node_modules/.bin/polymer test",
     "deps": "npm install --quiet && bower install --quiet",
     "update-deps": "npm update --quiet && bower update --quiet"
   },

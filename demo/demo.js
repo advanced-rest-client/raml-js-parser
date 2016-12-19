@@ -11,14 +11,15 @@
   scope.selectedOutput = 0;
   scope.ramlFileUrl =
     'https://raw.githubusercontent.com/advanced-rest-client/raml-example-api/master/api.raml';
-  scope.fileListChanged = () => {
+  scope.fileListChanged = function() {
     scope.hasData = false;
     scope.noEntryPoint = false;
     scope.multipleEntryPoints = false;
     scope.entryPoints = [];
     scope.api = undefined;
   };
-  scope.entryFound = (e) => {
+  scope.entryFound = function(e) {
+    console.log(e.detail);
     var file = e.detail.entry;
     if (!file) {
       scope.noEntryPoint = true;
@@ -32,43 +33,45 @@
     }
   };
 
-  scope._useEntryPoint = (e) => {
+  scope._useEntryPoint = function(e) {
     var item = e.model.get('item');
     scope.multipleEntryPoints = false;
     scope.entryPoints = [];
     scope.parseRaml(item);
   };
 
-  scope.parseRaml = (item) => {
+  scope.parseRaml = function(item) {
     scope.working = true;
 
-    let detail = {
+    var detail = {
       'file': item.entry,
       'files': scope.file
     };
-    let event = scope.fire('parse-raml-file', detail);
+    var event = scope.fire('parse-raml-file', detail);
     if (!event.detail.raml) {
       console.error('Event did not contained raml property.');
       return;
     }
 
     event.detail.raml
-      .then((result) => scope.handleParseResult(result))
-      .catch((e) => {
+      .then(function(result) {
+        scope.handleParseResult(result);
+      })
+      .catch(function(e) {
         console.warn('API error', e);
         scope.working = false;
       });
   };
 
-  scope._highlightApiJson = () => {
-    window.setTimeout(() => {
-      let obj = scope.api.expand(true).toJSON({
+  scope._highlightApiJson = function() {
+    window.setTimeout(function() {
+      var obj = scope.api.expand(true).toJSON({
         dumpSchemaContents: true,
         rootNodeDetails: true,
         serializeMetadata: true
       });
-      let txt = JSON.stringify(obj);
-      let event = scope.fire('syntax-highlight', {
+      var txt = JSON.stringify(obj);
+      var event = scope.fire('syntax-highlight', {
         code: txt,
         lang: 'js'
       });
@@ -78,17 +81,17 @@
     }, 1);
   };
 
-  scope._displayApiStructure = () => {
-    window.setTimeout(() => {
-      let txt = '';
-      scope.api.allResources().forEach((resource) => {
-        let rName = resource.displayName();
-        let rUri = resource.absoluteUri();
+  scope._displayApiStructure = function() {
+    window.setTimeout(function() {
+      var txt = '';
+      scope.api.allResources().forEach(function(resource) {
+        var rName = resource.displayName();
+        var rUri = resource.absoluteUri();
         txt += rName + ' <small>' + rUri + '</small>\n';
-        resource.methods().forEach((method) => {
-          let mName = method.displayName ? method.displayName() : null;
-          let mMethod = method.method ? method.method() : 'unknown';
-          let mDesc = method.description ? method.description() : null;
+        resource.methods().forEach(function(method) {
+          var mName = method.displayName ? method.displayName() : null;
+          var mMethod = method.method ? method.method() : 'unknown';
+          var mDesc = method.description ? method.description() : null;
           if (mDesc) {
             mDesc = mDesc.value();
           }
@@ -106,46 +109,54 @@
     }, 2);
   };
 
-  scope.toggleJson = () => {
+  scope.toggleJson = function() {
     scope.$.jsonOutput.toggle();
   };
-  scope.toggleStruct = () => {
+  scope.toggleStruct = function() {
     scope.$.structureOutput.toggle();
   };
 
-  scope._downloadRaml = () => {
+  scope._downloadRaml = function() {
     var url = scope.ramlFileUrl;
     if (!url) {
+      console.error('The URL is not set');
       return;
     }
     scope.working = true;
 
-    let detail = {
+    var detail = {
       'url': url
     };
-    let event = scope.fire('parse-raml-url', detail);
+    var event = scope.fire('parse-raml-url', detail);
     if (!event.detail.raml) {
-      console.error('Event did not contained raml property.');
+      console.error('The event did not handled the RAML property.');
+      scope.working = false;
       return;
     }
 
     event.detail.raml
-      .then((result) => scope.handleParseResult(result))
-      .catch((e) => {
+      .then(function(result) {
+        scope.handleParseResult(result);
+      })
+      .catch(function(e) {
         console.warn('API error', e);
         scope.working = false;
       });
   };
 
-  scope.handleParseResult = (result) => {
+  scope.handleParseResult = function(result) {
     scope.api = result[0];
     scope._displayApiStructure(result[1].specification);
     scope.errors = result[1].errors;
     console.log(result[1].specification);
   };
 
-  window.addEventListener('WebComponentsReady', function() {
+  // window.addEventListener('WebComponentsReady', function() {
+  //
+  // });
+
+  scope._parserReady = function() {
     scope._downloadRaml();
-  });
+  };
 
 })(document.querySelector('#app'));

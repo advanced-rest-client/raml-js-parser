@@ -15,7 +15,9 @@
     "url": "git@github.com:advanced-rest-client/raml-js-parser.git"
   },
   "dependencies": {
-    "polymer": "Polymer/polymer#^1.0.0"
+    "polymer": "Polymer/polymer#^1.0.0",
+    "fetch": "^2.0.1",
+    "promise-polyfill": "PolymerLabs/promise-polyfill#^1.0.1"
   },
   "devDependencies": {
     "iron-component-page": "polymerelements/iron-component-page#1.0.0",
