@@ -1,3 +1,13 @@
+<a name="1.1.2"></a>
+## [1.1.2](https://github.com/advanced-rest-client/raml-js-parser/compare/1.1.1...v1.1.2) (2016-12-23)
+
+
+### Update
+
+* Updated raml2obj.js file where type error on baseUrl has been fixed. ([3b1dc4932c5d9f70ab631474f803876d70e64035](https://github.com/advanced-rest-client/raml-js-parser/commit/3b1dc4932c5d9f70ab631474f803876d70e64035))
+
+
+
 <a name="1.1.1"></a>
 ## [1.1.1](https://github.com/advanced-rest-client/raml-js-parser/compare/1.0.16...v1.1.1) (2016-12-19)
 
