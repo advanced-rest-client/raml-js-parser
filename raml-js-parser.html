@@ -92,6 +92,16 @@ processFile = (e) => {
 
 The element contains a set of Polyfills so it will work in the IE11+ browsers.
 
+### Biuld process
+This element uses web workers to expand JSON result (normalize it).
+The element will attempty to load following scitps from the same location where
+this script resides:
+- polyfills.js
+- browser/index.js
+- raml2object.js
+
+Don't forget to put this files in the same location or the parser will not work.
+
 @group RAML Elements
 @element raml-js-parser
 @demo demo/demo.html
@@ -192,7 +202,27 @@ The element contains a set of Polyfills so it will work in the IE11+ browsers.
         type: Object,
         readOnly: true,
         notify: true
-      }
+      },
+      // function to be called when worker data are received
+      _workerExpandDataHandler: {
+        type: Function,
+        value: function() {
+          return this._expandWorkerData.bind(this);
+        }
+      },
+      // function to be called when worker error data are received
+      _workerExpandErrorHandler: {
+        type: Function,
+        value: function() {
+          return this._expandWorkerError.bind(this);
+        }
+      },
+      /**
+       * The object that holds the API pending data while the worker is
+       * normalizing the JSON object.
+       * Will be used only if the `normalizeRaml` is set.
+       */
+      _pendingWorkerInitData: Object
     },
 
     attached: function() {
@@ -313,20 +343,66 @@ The element contains a set of Polyfills so it will work in the IE11+ browsers.
         result: api
       };
       if (this.normalizeRaml) {
-        var object = api.expand(true).toJSON({
-          dumpSchemaContents: false,
-          rootNodeDetails: true,
-          serializeMetadata: false
-        });
-        object.specification = raml2obj.parse(object.specification);
-        this._setLatestJson(object);
-        result.json = object;
-      } else {
-        this._setLatestJson(undefined);
+        return this._normalizeRamlJson(result);
       }
+      this._setLatestJson(undefined);
       this._setLatestResult(api);
       this.fire('api-parse-ready', result);
       return this.normalizeRaml ? [api, result.json] : api;
+    },
+
+    _normalizeRamlJson: function(result) {
+      var object = result.result.expand(true).toJSON({
+        dumpSchemaContents: false,
+        rootNodeDetails: true,
+        serializeMetadata: false
+      });
+
+      if (!this._expadndWorker) {
+        var worker = new Worker(importLocation + 'raml-object-worker.js');
+        worker.addEventListener('message', this._workerExpandDataHandler);
+        worker.addEventListener('error', this._workerExpandErrorHandler);
+        this._expadndWorker = worker;
+      }
+      if (!this._pendingWorkerInitData) {
+        this._pendingWorkerInitData = {};
+      }
+      var context = this;
+      return new Promise(function(resolve, reject) {
+        var mark = Date.now();
+        context._pendingWorkerInitData[mark] = {
+          pendingResult: result,
+          parsed: object,
+          resolve: resolve,
+          reject: reject
+        };
+        context._expadndWorker.postMessage({
+          raml: object.specification,
+          state: mark
+        });
+      });
+    },
+
+    _expandWorkerData: function(e) {
+      var data = e.data;
+      var mark = data.state;
+      var initData = this._pendingWorkerInitData[mark];
+      delete this._pendingWorkerInitData[mark];
+      var result = initData.pendingResult;
+      var object = initData.parsed;
+      object.specification = data.result;
+      this._setLatestJson(object);
+      result.json = object;
+      this._setLatestResult(result.result);
+      this.fire('api-parse-ready', result);
+      initData.resolve([result.result, result.json]);
+    },
+
+    _expandWorkerError: function(e) {
+      var mark = Object.keys(this._pendingWorkerInitData)[0];
+      var initData = this._pendingWorkerInitData[mark];
+      delete this._pendingWorkerInitData[mark];
+      initData.reject(e);
     },
 
     /**
