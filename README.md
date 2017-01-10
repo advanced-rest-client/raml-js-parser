@@ -81,6 +81,16 @@ processFile = (e) => {
 
 The element contains a set of Polyfills so it will work in the IE11+ browsers.
 
+### Biuld process
+This element uses web workers to expand JSON result (normalize it).
+The element will attempty to load following scitps from the same location where
+this script resides:
+- polyfills.js
+- browser/index.js
+- raml2object.js
+
+Don't forget to put this files in the same location or the parser will not work.
+
 
 
 ### Events
