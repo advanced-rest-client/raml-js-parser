@@ -318,8 +318,6 @@ The element contains a set of Polyfills so it will work in the IE11+ browsers.
           rootNodeDetails: true,
           serializeMetadata: false
         });
-
-        // object.specification = RamlNormalizer.transform(object.specification);
         object.specification = raml2obj.parse(object.specification);
         this._setLatestJson(object);
         result.json = object;
