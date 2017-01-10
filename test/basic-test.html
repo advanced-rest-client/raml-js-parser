@@ -70,7 +70,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       element = fixture('basic');
     });
 
-
     it('Should parse remote file', function(done) {
       var URL = 'https://raw.githubusercontent.com/raml-apis/XKCD/production/api.raml';
       element.loadApi(URL)
@@ -184,7 +183,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     beforeEach(function() {
       element = fixture('normalizer');
     });
-
 
     it('Should parse content string', function(done) {
       element.parseRaml(raml)
