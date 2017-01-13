@@ -1,3 +1,43 @@
+<a name="1.1.5"></a>
+## [1.1.5](https://github.com/advanced-rest-client/raml-js-parser/compare/1.1.2...v1.1.5) (2017-01-13)
+
+
+### Breaking
+
+* Made the parser normalizer to work in web worker. It doesn't change anything in the API and how to use the element. However it changes the build process. See readme for more information ([de79a4800df12dafbeca527515581583ad91f308](https://github.com/advanced-rest-client/raml-js-parser/commit/de79a4800df12dafbeca527515581583ad91f308))
+* Now the parser output will contain security schemes applied to methods and resource. Also the resourceUrl was removed and requestUri is not the only one showing the absolute URL ([7568efa3fa7f2ceba0b39df69b93c708708c958c](https://github.com/advanced-rest-client/raml-js-parser/commit/7568efa3fa7f2ceba0b39df69b93c708708c958c))
+
+### Fix
+
+* Fixed import location - added last slash to the path ([7ab2236eaf2c30505e66d83c8b62c617de6bf967](https://github.com/advanced-rest-client/raml-js-parser/commit/7ab2236eaf2c30505e66d83c8b62c617de6bf967))
+* Fixed import location path so the IE11 could det it correctly ([c12cd4d72cac4c6bfb40eb2a4bab413fc7e35f3f](https://github.com/advanced-rest-client/raml-js-parser/commit/c12cd4d72cac4c6bfb40eb2a4bab413fc7e35f3f))
+
+### Update
+
+* Updated safari version to 10 in test cases ([d29d4fa3b6a34edc7be8fd06b1fbd04eec6404e2](https://github.com/advanced-rest-client/raml-js-parser/commit/d29d4fa3b6a34edc7be8fd06b1fbd04eec6404e2))
+
+
+
+<a name="1.1.4"></a>
+## [1.1.4](https://github.com/advanced-rest-client/raml-js-parser/compare/1.1.2...v1.1.4) (2017-01-13)
+
+
+### Breaking
+
+* Made the parser normalizer to work in web worker. It doesn't change anything in the API and how to use the element. However it changes the build process. See readme for more information ([de79a4800df12dafbeca527515581583ad91f308](https://github.com/advanced-rest-client/raml-js-parser/commit/de79a4800df12dafbeca527515581583ad91f308))
+* Now the parser output will contain security schemes applied to methods and resource. Also the resourceUrl was removed and requestUri is not the only one showing the absolute URL ([7568efa3fa7f2ceba0b39df69b93c708708c958c](https://github.com/advanced-rest-client/raml-js-parser/commit/7568efa3fa7f2ceba0b39df69b93c708708c958c))
+
+### Fix
+
+* Fixed import location - added last slash to the path ([7ab2236eaf2c30505e66d83c8b62c617de6bf967](https://github.com/advanced-rest-client/raml-js-parser/commit/7ab2236eaf2c30505e66d83c8b62c617de6bf967))
+* Fixed import location path so the IE11 could det it correctly ([c12cd4d72cac4c6bfb40eb2a4bab413fc7e35f3f](https://github.com/advanced-rest-client/raml-js-parser/commit/c12cd4d72cac4c6bfb40eb2a4bab413fc7e35f3f))
+
+### Update
+
+* Updated safari version to 10 in test cases ([d29d4fa3b6a34edc7be8fd06b1fbd04eec6404e2](https://github.com/advanced-rest-client/raml-js-parser/commit/d29d4fa3b6a34edc7be8fd06b1fbd04eec6404e2))
+
+
+
 <a name="1.1.2"></a>
 ## [1.1.2](https://github.com/advanced-rest-client/raml-js-parser/compare/1.1.1...v1.1.2) (2016-12-23)
 
