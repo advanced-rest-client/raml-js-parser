@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/advanced-rest-client/raml-js-parser.svg?branch=master)](https://travis-ci.org/advanced-rest-client/raml-js-parser)  [![Dependency Status](https://dependencyci.com/github/advanced-rest-client/raml-js-parser/badge)](https://dependencyci.com/github/advanced-rest-client/raml-js-parser)  
+[![Build Status](https://travis-ci.org/advanced-rest-client/raml-js-parser.svg?branch=stage)](https://travis-ci.org/advanced-rest-client/raml-js-parser)  
 
 # raml-js-parser
 
