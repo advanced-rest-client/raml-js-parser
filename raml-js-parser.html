@@ -115,7 +115,7 @@ Don't forget to put this files in the same location or the parser will not work.
   (function() {
     if (window.currentImport && window.currentImport.URL) {
       var url = window.currentImport.URL;
-      if (url === 'about:blank' && window.currentImport._URL) {
+      if (window.currentImport._URL) {
         url = window.currentImport._URL;
       }
       if (url === 'about:blank') {
