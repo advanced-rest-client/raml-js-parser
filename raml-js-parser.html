@@ -123,14 +123,10 @@ Don't forget to put this files in the same location or the parser will not work.
         // in test cases for edge this will fail because it should be set to ../../
         // but right now I can't waste time to check how to check if this is the particular case.
       } else {
-        var path = url.substr(url.indexOf('/', url.indexOf('/') + 2))
-          .replace('raml-js-parser.html', '');
-        var lastDot = path.lastIndexOf('.');
-        if (lastDot !== -1 && path.substr(lastDot + 1) === 'html') {
-          // remove element file name path
-          path = path.substr(0, path.lastIndexOf('/') + 1);
-        }
-        if (path.indexOf('/test') !== -1) {
+        var path = url.substr(url.indexOf('/', 8));
+        path = path.substr(0, path.lastIndexOf('/') + 1);
+        if (path.indexOf('/test') !== -1 || path.indexOf('/demo') !== -1) {
+          path = path.substr(0, path.length - 1);
           path = path.substr(0, path.lastIndexOf('/') + 1);
         }
         importLocation = path;
@@ -388,6 +384,14 @@ Don't forget to put this files in the same location or the parser will not work.
       var mark = data.state;
       var initData = this._pendingWorkerInitData[mark];
       delete this._pendingWorkerInitData[mark];
+      if (data.error) {
+        console.log('Error in the worker.', data);
+        if (initData) {
+          initData.reject(e);
+        }
+        return;
+      }
+
       var result = initData.pendingResult;
       var object = initData.parsed;
       object.specification = data.result;
