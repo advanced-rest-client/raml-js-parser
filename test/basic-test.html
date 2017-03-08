@@ -170,6 +170,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   describe('normalizer', function() {
     var raml;
     var element;
+
     before(function(done) {
       var oReq = new XMLHttpRequest();
       oReq.addEventListener('load', function(e) {
@@ -194,7 +195,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         done();
       })
       .catch(function(err) {
-        done(err);
+        var msg = '';
+        for (var k in err) {
+          msg += k + ' : ' + err[k] + '';
+        }
+        done(new Error(err.message || msg));
       });
     });
 
@@ -207,7 +212,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         done();
       })
       .catch(function(err) {
-        done(err);
+        done(new Error(err.message || 'Parser error'));
       });
     });
   });

@@ -406,7 +406,8 @@ Don't forget to put this files in the same location or the parser will not work.
       var mark = Object.keys(this._pendingWorkerInitData)[0];
       var initData = this._pendingWorkerInitData[mark];
       delete this._pendingWorkerInitData[mark];
-      initData.reject(e);
+      var err = new Error(e.message || 'Unknown worker error.');
+      initData.reject(err);
     },
 
     /**
