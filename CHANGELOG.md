@@ -1,3 +1,17 @@
+<a name="1.1.7"></a>
+## [1.1.7](https://github.com/advanced-rest-client/raml-js-parser/compare/1.1.6...v1.1.7) (2017-03-09)
+
+
+### Fix
+
+* Fixed >import location< script (localizes the element URL for workers import location) and therefore fixing the parser to work in Safari 9 ([0e515b5eee6317312936b45a7ae99bfa61b2a9d3](https://github.com/advanced-rest-client/raml-js-parser/commit/0e515b5eee6317312936b45a7ae99bfa61b2a9d3))
+
+### Update
+
+* Working on a failing test for Safari 9 ([1997a639241cd8724f75cedf401723ba47542421](https://github.com/advanced-rest-client/raml-js-parser/commit/1997a639241cd8724f75cedf401723ba47542421))
+
+
+
 <a name="1.1.6"></a>
 ## [1.1.6](https://github.com/advanced-rest-client/raml-js-parser/compare/1.1.2...v1.1.6) (2017-01-13)
 
