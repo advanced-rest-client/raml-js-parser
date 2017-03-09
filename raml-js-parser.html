@@ -113,24 +113,29 @@ Don't forget to put this files in the same location or the parser will not work.
   /* global RAML */
   var importLocation = '';
   (function() {
+    var url;
     if (window.currentImport && window.currentImport.URL) {
-      var url = window.currentImport.URL;
+      url = window.currentImport.URL;
       if (window.currentImport._URL) {
         url = window.currentImport._URL;
       }
-      if (url === 'about:blank') {
-        importLocation = '../';
-        // in test cases for edge this will fail because it should be set to ../../
-        // but right now I can't waste time to check how to check if this is the particular case.
-      } else {
-        var path = url.substr(url.indexOf('/', 8));
+    } else if (window.currentImport._URL) {
+      url = window.currentImport._URL;
+    } else {
+      url = window.location.href;
+    }
+    if (url === 'about:blank') {
+      importLocation = '../';
+      // in test cases for edge this will fail because it should be set to ../../
+      // but right now I can't waste time to check how to check if this is the particular case.
+    } else {
+      var path = url.substr(url.indexOf('/', 8));
+      path = path.substr(0, path.lastIndexOf('/') + 1);
+      if (path.indexOf('/test') !== -1 || path.indexOf('/demo') !== -1) {
+        path = path.substr(0, path.length - 1);
         path = path.substr(0, path.lastIndexOf('/') + 1);
-        if (path.indexOf('/test') !== -1 || path.indexOf('/demo') !== -1) {
-          path = path.substr(0, path.length - 1);
-          path = path.substr(0, path.lastIndexOf('/') + 1);
-        }
-        importLocation = path;
       }
+      importLocation = path;
     }
   })();
   Polymer({
@@ -218,7 +223,16 @@ Don't forget to put this files in the same location or the parser will not work.
        * normalizing the JSON object.
        * Will be used only if the `normalizeRaml` is set.
        */
-      _pendingWorkerInitData: Object
+      _pendingWorkerInitData: Object,
+      /**
+       * Import location for web the worker.
+       */
+      importLocation: {
+        type: String,
+        value: function() {
+          return importLocation;
+        }
+      }
     },
 
     attached: function() {
@@ -355,7 +369,7 @@ Don't forget to put this files in the same location or the parser will not work.
       });
 
       if (!this._expadndWorker) {
-        var worker = new Worker(importLocation + 'raml-object-worker.js');
+        var worker = new Worker(this.importLocation + 'raml-object-worker.js');
         worker.addEventListener('message', this._workerExpandDataHandler);
         worker.addEventListener('error', this._workerExpandErrorHandler);
         this._expadndWorker = worker;
@@ -406,7 +420,7 @@ Don't forget to put this files in the same location or the parser will not work.
       var mark = Object.keys(this._pendingWorkerInitData)[0];
       var initData = this._pendingWorkerInitData[mark];
       delete this._pendingWorkerInitData[mark];
-      var err = new Error(e.message || 'Unknown worker error.');
+      var err = new Error(e.message || ' Unknown worker error.');
       initData.reject(err);
     },
 
