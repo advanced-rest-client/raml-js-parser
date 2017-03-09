@@ -4,7 +4,7 @@ try {
 } catch (e) {
   self.postMessage({
     error: true,
-    message: e.message
+    message: 'Worker import error: ' + e.message
   });
 }
 
@@ -18,7 +18,7 @@ self.onmessage = function(e) {
   } catch (e) {
     self.postMessage({
       error: true,
-      message: e.message,
+      message: 'Worker parser error: ' + e.message,
       state: e.data.state
     });
   }
