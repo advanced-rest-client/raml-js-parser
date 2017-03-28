@@ -10,7 +10,13 @@ try {
 
 self.onmessage = function(e) {
   try {
+    if (performance && performance.mark) {
+      performance.mark('raml-2-object-start');
+    }
     var result = raml2obj.parse(e.data.raml);
+    if (performance && performance.mark) {
+      performance.mark('raml-2-object-end');
+    }
     self.postMessage({
       result: result,
       state: e.data.state

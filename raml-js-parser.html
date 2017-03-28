@@ -252,6 +252,16 @@ Don't forget to put this files in the same location or the parser will not work.
       this.fire('raml-js-parser-ready', {});
     },
 
+    /**
+     * Used to debug the application.
+     * It uses the Parformance API to mark a specific point in time.
+     */
+    _markTime: function(name) {
+      if (performance && performance.mark) {
+        performance.mark(name);
+      }
+    },
+
     _parseRamlUrl: function(event) {
       if (!event.detail.url) {
         return;
@@ -320,6 +330,7 @@ Don't forget to put this files in the same location or the parser will not work.
     },
     // Load API from the URL.
     loadApi: function(url) {
+      this._markTime('load-raml-url-start');
       var context = this;
       return RAML.Parser.loadApi(url, {
         fsResolver: {
@@ -334,14 +345,20 @@ Don't forget to put this files in the same location or the parser will not work.
         }
       })
       .then(function(api) {
+        context._markTime('load-raml-url-end');
         return context.setApiData(api);
       })
       .catch(function(err) {
+        context._markTime('load-raml-url-end');
         context._setLatestError(err);
         context.fire('error', {
           error: err
         });
         throw err;
+      })
+      .then(function(api) {
+        context._measureData();
+        return api;
       });
     },
     /**
@@ -362,12 +379,13 @@ Don't forget to put this files in the same location or the parser will not work.
     },
 
     _normalizeRamlJson: function(result) {
+      this._markTime('raml-expand-to-json-start');
       var object = result.result.expand(true).toJSON({
         dumpSchemaContents: false,
         rootNodeDetails: true,
         serializeMetadata: false
       });
-
+      this._markTime('raml-expand-to-json-end');
       if (!this._expadndWorker) {
         var worker = new Worker(this.importLocation + 'raml-object-worker.js');
         worker.addEventListener('message', this._workerExpandDataHandler);
@@ -386,6 +404,7 @@ Don't forget to put this files in the same location or the parser will not work.
           resolve: resolve,
           reject: reject
         };
+        context._markTime('raml-worker-expansion-library-send');
         context._expadndWorker.postMessage({
           raml: object.specification,
           state: mark
@@ -394,6 +413,7 @@ Don't forget to put this files in the same location or the parser will not work.
     },
 
     _expandWorkerData: function(e) {
+      this._markTime('raml-worker-expansion-library-receive');
       var data = e.data;
       var mark = data.state;
       var initData = this._pendingWorkerInitData[mark];
@@ -417,6 +437,7 @@ Don't forget to put this files in the same location or the parser will not work.
     },
 
     _expandWorkerError: function(e) {
+      this._markTime('raml-worker-expansion-library-receive');
       var mark = Object.keys(this._pendingWorkerInitData)[0];
       var initData = this._pendingWorkerInitData[mark];
       delete this._pendingWorkerInitData[mark];
@@ -472,8 +493,11 @@ Don't forget to put this files in the same location or the parser will not work.
      * from the URL.
      */
     getResourceAsync: function(path) {
+      this._markTime('raml-file-fetch-start');
+      var context = this;
       return fetch(path)
       .then(function(response) {
+        context._markTime('raml-file-fetch-end');
         return response.text();
       })
       .then(function(text) {
@@ -661,6 +685,40 @@ Don't forget to put this files in the same location or the parser will not work.
           return item;
         }
       }
+    },
+
+    _measureData: function() {
+      if (!performance || !performance.mark) {
+        return;
+      }
+      performance.measure('api-spec-load-time', 'load-raml-url-start',
+        'load-raml-url-end');
+      performance.measure('raml-expand-to-json', 'raml-expand-to-json-start',
+        'raml-expand-to-json-end');
+      performance.measure('worker-work-time', 'raml-worker-expansion-library-send',
+        'raml-worker-expansion-library-receive');
+      // performance.measure('raml2obj-enhace', 'raml2obj-enhace-start',
+      //   'raml2obj-enhace-end');
+      // performance.measure('raml2obj-arrays-to-object', 'raml2obj-arrays-to-object-start',
+      //   'raml2obj-arrays-to-object-end');
+      // // The expansion library
+      // performance.measure('raml2obj-expanding-root-types',
+      //   'raml2obj-expanding-root-types-start',
+      //   'raml2obj-expanding-root-types-end');
+      // performance.measure('raml2obj-make-consistent-root-types',
+      //   'raml2obj-make-consistent-root-types-start',
+      //   'raml2obj-make-consistent-root-types-end');
+      // performance.measure('raml2obj-make-consistent-raml',
+      //   'raml2obj-make-consistent-raml-start',
+      //   'raml2obj-make-consistent-raml-end');
+      // performance.measure('raml2obj-recursive-object-to-array',
+      //   'raml2obj-recursive-object-to-array-start',
+      //   'raml2obj-recursive-object-to-array-end');
+      // performance.measure('raml2obj-apply-raml-types',
+      //   'raml2obj-apply-raml-types-start',
+      //   'raml2obj-apply-raml-types-end');
+      var items = window.performance.getEntriesByType('measure');
+      console.log(items);
     }
   });
 })();
