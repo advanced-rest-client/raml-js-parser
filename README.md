@@ -50,7 +50,6 @@ This event will be handled only if it contains the `file` property in
 the event detail object. Additional files or directory structure can be
 passed in the `files` property.
 
-
 ### Example
 ``` html
 <raml-js-parser></raml-js-parser>
@@ -79,17 +78,38 @@ processFile = (e) => {
 };
 ```
 
-The element contains a set of Polyfills so it will work in the IE11+ browsers.
+## Use with ARC elements
+This element is just a web component's implementation of the RAML JS parser.
+ARC components requires enhanced JSON output of the JS parser. For that you
+have to use `raml-json-enhance` element.
 
-### Biuld process
-This element uses web workers to expand JSON result (normalize it).
-The element will attempty to load following scitps from the same location where
-this script resides:
-- polyfills.js
-- browser/index.js
-- raml2object.js
+### Example:
+```html
+<raml-js-parser json latest-json="{{raml}}"></raml-js-parser>
+<raml-json-enhance json="[[raml.specification]]"></raml-json-enhance>
+```
+```javascript
+window.addEventListener('raml-json-enhance-ready', function(e) {
+  console.log(e.detail.json); // contains ARC elements data model.
+});
+```
+or in plain JavaScript
+```html
+<raml-js-parser json></raml-js-parser>
+<raml-json-enhance></raml-json-enhance>
+```
+```javascript
+var parser = document.querySelector('raml-js-parser');
+parser.addEventListener('api-parse-ready', function(e) {
+  var enhacer = document.querySelector('raml-json-enhance');
+  enhacer.json = e.detail.json.specification;
+});
+parser.loadApi(urlToApi);
 
-Don't forget to put this files in the same location or the parser will not work.
+window.addEventListener('raml-json-enhance-ready', function(e) {
+  console.log(e.detail.json); // contains ARC elements data model.
+});
+```
 
 
 
@@ -97,6 +117,6 @@ Don't forget to put this files in the same location or the parser will not work.
 | Name | Description | Params |
 | --- | --- | --- |
 | api-parse-ready | Fired when the RAML file has been parsed and the result is ready. | result **Object** - The parsing result. |
-json **Object** - (optional) Set when `normalizeRaml` property is set. JSON output. |
+json **Object** - (optional) Set when `json` property is set. JSON output. |
 | error | Fired when error occurred while parsing the file. | error **Error** - The error object. |
 | raml-js-parser-ready | Fired when the element has been attached to the DOM and is ready to parse data. | __none__ |
