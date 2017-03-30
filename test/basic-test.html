@@ -28,9 +28,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     </template>
   </test-fixture>
 
-  <test-fixture id="normalizer">
+  <test-fixture id="json">
     <template>
-      <raml-js-parser normalize-raml></raml-js-parser>
+      <raml-js-parser json></raml-js-parser>
     </template>
   </test-fixture>
   <script>
@@ -47,6 +47,20 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     var event = new CustomEvent(name, init);
     (node || document).dispatchEvent(event);
     return event;
+  }
+
+  function getLocalUrl() {
+    var href = location.href;
+    if (href.indexOf('?') !== -1) {
+      href = href.substr(0, href.indexOf('?'));
+    }
+    if (href[href.length - 1] !== '/') {
+      var parts = href.split('/');
+      parts.pop();
+      href = parts.join('/');
+    }
+    //href = href.substr(0, href.length - 1);
+    return href;
   }
 
   describe('basic', function() {
@@ -71,9 +85,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     });
 
     it('Should parse remote file', function(done) {
-      var URL = location.origin + element.importLocation + 'test/test.raml';
-      element.loadApi(URL)
-      .then(function(api) {
+      var url = getLocalUrl();
+      element.loadApi(url + '/test.raml')
+      .then(function(data) {
+        var api = data.result;
         assert.isObject(api, 'The result is an object');
         assert.equal(api.resources().length, 2, 'Contains 2 resources');
         done();
@@ -85,7 +100,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
     it('Should parse content string', function(done) {
       element.parseRaml(raml)
-      .then(function(api) {
+      .then(function(data) {
+        var api = data.result;
         assert.isObject(api, 'The result is an object');
         assert.equal(api.resources().length, 2, 'Contains 2 resources');
         done();
@@ -98,7 +114,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     it('Should parse local file', function(done) {
       element.ramlFile = ramlBlob;
       element.loadFiles()
-      .then(function(api) {
+      .then(function(data) {
+        var api = data.result;
         assert.isObject(api, 'The result is an object');
         assert.equal(api.resources().length, 2, 'Contains 2 resources');
         done();
@@ -128,7 +145,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
       assert.isDefined(event.detail.raml, 'raml property is defined');
       event.detail.raml
-      .then(function(api) {
+      .then(function(data) {
+        var api = data.result;
         assert.isObject(api, 'The result is an object');
         done();
       })
@@ -143,7 +161,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
       assert.isDefined(event.detail.raml, 'raml property is defined');
       event.detail.raml
-      .then(function(api) {
+      .then(function(data) {
+        var api = data.result;
         assert.isObject(api, 'The result is an object');
         done();
       })
@@ -158,7 +177,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
       assert.isDefined(event.detail.raml, 'raml property is defined');
       event.detail.raml
-      .then(function(api) {
+      .then(function(data) {
+        var api = data.result;
         assert.isObject(api, 'The result is an object');
         done();
       })
@@ -168,7 +188,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     });
   });
 
-  describe('normalizer', function() {
+  describe('json extractor', function() {
     var raml;
     var element;
 
@@ -183,16 +203,16 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     });
 
     beforeEach(function() {
-      element = fixture('normalizer');
+      element = fixture('json');
     });
 
     it('Should parse content string', function(done) {
       element.parseRaml(raml)
-      .then(function(result) {
-        assert.isArray(result, 'The result is an object');
-        assert.isObject(result[0], 'The result[0] is an object');
-        assert.equal(result[0].resources().length, 2, 'Contains 2 resources');
-        assert.isObject(result[1], 'The result[1] is an object');
+      .then(function(data) {
+        assert.isObject(data, 'The result is an object');
+        assert.isObject(data.result, 'The result[0] is an object');
+        assert.equal(data.result.resources().length, 2, 'Contains 2 resources');
+        assert.isObject(data.json, 'The result[1] is an object');
         done();
       })
       .catch(function(err) {

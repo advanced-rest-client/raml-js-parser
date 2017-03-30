@@ -10,7 +10,8 @@
   scope.errors = [];
   scope.selectedOutput = 0;
   scope.ramlFileUrl =
-    'https://raw.githubusercontent.com/advanced-rest-client/raml-example-api/master/api.raml';
+    // 'https://raw.githubusercontent.com/advanced-rest-client/raml-example-api/master/api.raml';
+    'https://cdn.rawgit.com/advanced-rest-client/drive-raml-api-v2/1f85d308/api.raml';
   scope.fileListChanged = function() {
     scope.hasData = false;
     scope.noEntryPoint = false;
@@ -123,7 +124,6 @@
       return;
     }
     scope.working = true;
-
     var detail = {
       'url': url
     };
@@ -135,20 +135,20 @@
     }
 
     event.detail.raml
-      .then(function(result) {
-        scope.handleParseResult(result);
-      })
-      .catch(function(e) {
-        console.warn('API error', e);
-        scope.working = false;
-      });
+    .then(function(result) {
+      scope.handleParseResult(result);
+    })
+    .catch(function(e) {
+      console.warn('API error', e);
+      scope.working = false;
+    });
   };
 
-  scope.handleParseResult = function(result) {
-    scope.api = result[0];
-    scope._displayApiStructure(result[1].specification);
-    scope.errors = result[1].errors;
-    console.log(result[1].specification);
+  scope.handleParseResult = function(data) {
+    scope.api = data.result;
+    scope._displayApiStructure(data.json.specification);
+    scope.errors = data.json.errors;
+    console.log(data.json.specification);
   };
 
   // window.addEventListener('WebComponentsReady', function() {

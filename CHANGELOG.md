@@ -1,3 +1,17 @@
+<a name="2.0.1"></a>
+## [2.0.1](https://github.com/advanced-rest-client/raml-js-parser/compare/1.1.7...v2.0.1) (2017-03-30)
+
+
+### Breaking
+
+* The parser will not longer use raml2object to normalise the JSON output. The raml2object and data types expansion has been moved to the raml-json-enhance element. The element only parses RAML and reports the parser's output to the app ([5ef93c8057cb6e55d31e5369b5f402a1fcbc80d8](https://github.com/advanced-rest-client/raml-js-parser/commit/5ef93c8057cb6e55d31e5369b5f402a1fcbc80d8))
+
+### Update
+
+* Added performance analysis to the parser ([cbb54d1d37b85834cbd066307ee4ba39a6108729](https://github.com/advanced-rest-client/raml-js-parser/commit/cbb54d1d37b85834cbd066307ee4ba39a6108729))
+
+
+
 <a name="1.1.7"></a>
 ## [1.1.7](https://github.com/advanced-rest-client/raml-js-parser/compare/1.1.6...v1.1.7) (2017-03-09)
 
