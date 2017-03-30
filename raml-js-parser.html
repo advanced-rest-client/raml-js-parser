@@ -61,7 +61,6 @@ This event will be handled only if it contains the `file` property in
 the event detail object. Additional files or directory structure can be
 passed in the `files` property.
 
-
 ### Example
 ``` html
 <raml-js-parser></raml-js-parser>
@@ -90,17 +89,38 @@ processFile = (e) => {
 };
 ```
 
-The element contains a set of Polyfills so it will work in the IE11+ browsers.
+## Use with ARC elements
+This element is just a web component's implementation of the RAML JS parser.
+ARC components requires enhanced JSON output of the JS parser. For that you
+have to use `raml-json-enhance` element.
 
-### Biuld process
-This element uses web workers to expand JSON result (normalize it).
-The element will attempty to load following scitps from the same location where
-this script resides:
-- polyfills.js
-- browser/index.js
-- raml2object.js
+### Example:
+```html
+<raml-js-parser json latest-json="{{raml}}"></raml-js-parser>
+<raml-json-enhance json="[[raml.specification]]"></raml-json-enhance>
+```
+```javascript
+window.addEventListener('raml-json-enhance-ready', function(e) {
+  console.log(e.detail.json); // contains ARC elements data model.
+});
+```
+or in plain JavaScript
+```html
+<raml-js-parser json></raml-js-parser>
+<raml-json-enhance></raml-json-enhance>
+```
+```javascript
+var parser = document.querySelector('raml-js-parser');
+parser.addEventListener('api-parse-ready', function(e) {
+  var enhacer = document.querySelector('raml-json-enhance');
+  enhacer.json = e.detail.json.specification;
+});
+parser.loadApi(urlToApi);
 
-Don't forget to put this files in the same location or the parser will not work.
+window.addEventListener('raml-json-enhance-ready', function(e) {
+  console.log(e.detail.json); // contains ARC elements data model.
+});
+```
 
 @group RAML Elements
 @element raml-js-parser
@@ -110,34 +130,6 @@ Don't forget to put this files in the same location or the parser will not work.
 <script>
 (function() {
   'use strict';
-  /* global RAML */
-  var importLocation = '';
-  (function() {
-    var url;
-    if (window.currentImport && window.currentImport.URL) {
-      url = window.currentImport.URL;
-      if (window.currentImport._URL) {
-        url = window.currentImport._URL;
-      }
-    } else if (window.currentImport._URL) {
-      url = window.currentImport._URL;
-    } else {
-      url = window.location.href;
-    }
-    if (url === 'about:blank') {
-      importLocation = '../';
-      // in test cases for edge this will fail because it should be set to ../../
-      // but right now I can't waste time to check how to check if this is the particular case.
-    } else {
-      var path = url.substr(url.indexOf('/', 8));
-      path = path.substr(0, path.lastIndexOf('/') + 1);
-      if (path.indexOf('/test') !== -1 || path.indexOf('/demo') !== -1) {
-        path = path.substr(0, path.length - 1);
-        path = path.substr(0, path.lastIndexOf('/') + 1);
-      }
-      importLocation = path;
-    }
-  })();
   Polymer({
     is: 'raml-js-parser',
     /**
@@ -145,7 +137,8 @@ Don't forget to put this files in the same location or the parser will not work.
      *
      * @event api-parse-ready
      * @param {Object} result The parsing result.
-     * @param {Object} json (optional) Set when `normalizeRaml` property is set. JSON output.
+     * @param {Object} json (optional) Set when `json` property is set.
+     * JSON output.
      */
     /**
      * Fired when error occurred while parsing the file.
@@ -189,10 +182,10 @@ Don't forget to put this files in the same location or the parser will not work.
         notify: true
       },
       /**
-       * If true then the parser will extract JSON data and set it to the `json` property
-       * and normalise output for ARC components.
+       * If true then the parser will extract JSON data and set it to the
+       * `latest-json` property.
        */
-      normalizeRaml: {
+      json: {
         type: Boolean,
         value: false
       },
@@ -204,35 +197,13 @@ Don't forget to put this files in the same location or the parser will not work.
         readOnly: true,
         notify: true
       },
-      // function to be called when worker data are received
-      _workerExpandDataHandler: {
-        type: Function,
-        value: function() {
-          return this._expandWorkerData.bind(this);
-        }
-      },
-      // function to be called when worker error data are received
-      _workerExpandErrorHandler: {
-        type: Function,
-        value: function() {
-          return this._expandWorkerError.bind(this);
-        }
-      },
       /**
-       * The object that holds the API pending data while the worker is
-       * normalizing the JSON object.
-       * Will be used only if the `normalizeRaml` is set.
+       * If true it will generate a report about the usage time using the
+       * performance API.
+       * It will print the computed data to the console after it finish
+       * computing RAML data.
        */
-      _pendingWorkerInitData: Object,
-      /**
-       * Import location for web the worker.
-       */
-      importLocation: {
-        type: String,
-        value: function() {
-          return importLocation;
-        }
-      }
+      debug: Boolean
     },
 
     attached: function() {
@@ -249,7 +220,7 @@ Don't forget to put this files in the same location or the parser will not work.
     },
 
     ready: function() {
-      this.fire('raml-js-parser-ready', {});
+      this.fire('raml-js-parser-ready');
     },
 
     /**
@@ -257,7 +228,7 @@ Don't forget to put this files in the same location or the parser will not work.
      * It uses the Parformance API to mark a specific point in time.
      */
     _markTime: function(name) {
-      if (performance && performance.mark) {
+      if (this.debug && performance && performance.mark) {
         performance.mark(name);
       }
     },
@@ -363,86 +334,31 @@ Don't forget to put this files in the same location or the parser will not work.
     },
     /**
      * Sets parsed RAML data and assigns variables.
-     * If `normalize` is set then it also normalize parser's JSON output
+     * If `json` is set then it also produce JSON output from the API spec.
+     *
+     * @return {Object} Operation result. It will always set the `result`
+     * property which is the reference to the api object of the RAML parser.
+     * If the `json` property is set it will produce the JSON structure from the
+     * RAML data.
      */
     setApiData: function(api) {
-      var result = {
+      var detail = {
         result: api
       };
-      if (this.normalizeRaml) {
-        return this._normalizeRamlJson(result);
-      }
-      this._setLatestJson(undefined);
-      this._setLatestResult(api);
-      this.fire('api-parse-ready', result);
-      return this.normalizeRaml ? [api, result.json] : api;
-    },
-
-    _normalizeRamlJson: function(result) {
-      this._markTime('raml-expand-to-json-start');
-      var object = result.result.expand(true).toJSON({
-        dumpSchemaContents: false,
-        rootNodeDetails: true,
-        serializeMetadata: false
-      });
-      this._markTime('raml-expand-to-json-end');
-      if (!this._expadndWorker) {
-        var worker = new Worker(this.importLocation + 'raml-object-worker.js');
-        worker.addEventListener('message', this._workerExpandDataHandler);
-        worker.addEventListener('error', this._workerExpandErrorHandler);
-        this._expadndWorker = worker;
-      }
-      if (!this._pendingWorkerInitData) {
-        this._pendingWorkerInitData = {};
-      }
-      var context = this;
-      return new Promise(function(resolve, reject) {
-        var mark = Date.now();
-        context._pendingWorkerInitData[mark] = {
-          pendingResult: result,
-          parsed: object,
-          resolve: resolve,
-          reject: reject
-        };
-        context._markTime('raml-worker-expansion-library-send');
-        context._expadndWorker.postMessage({
-          raml: object.specification,
-          state: mark
+      var json;
+      if (this.json) {
+        json = api.expand(true)
+        .toJSON({
+          dumpSchemaContents: false,
+          rootNodeDetails: true,
+          serializeMetadata: false
         });
-      });
-    },
-
-    _expandWorkerData: function(e) {
-      this._markTime('raml-worker-expansion-library-receive');
-      var data = e.data;
-      var mark = data.state;
-      var initData = this._pendingWorkerInitData[mark];
-      delete this._pendingWorkerInitData[mark];
-      if (data.error) {
-        console.log('Error in the worker.', data);
-        if (initData) {
-          initData.reject(e);
-        }
-        return;
+        detail.json = json;
       }
-
-      var result = initData.pendingResult;
-      var object = initData.parsed;
-      object.specification = data.result;
-      this._setLatestJson(object);
-      result.json = object;
-      this._setLatestResult(result.result);
-      this.fire('api-parse-ready', result);
-      initData.resolve([result.result, result.json]);
-    },
-
-    _expandWorkerError: function(e) {
-      this._markTime('raml-worker-expansion-library-receive');
-      var mark = Object.keys(this._pendingWorkerInitData)[0];
-      var initData = this._pendingWorkerInitData[mark];
-      delete this._pendingWorkerInitData[mark];
-      var err = new Error(e.message || ' Unknown worker error.');
-      initData.reject(err);
+      this._setLatestJson(json);
+      this._setLatestResult(api);
+      this.fire('api-parse-ready', detail);
+      return detail;
     },
 
     /**
@@ -688,35 +604,11 @@ Don't forget to put this files in the same location or the parser will not work.
     },
 
     _measureData: function() {
-      if (!performance || !performance.mark) {
+      if (!this.debug || !performance || !performance.mark) {
         return;
       }
       performance.measure('api-spec-load-time', 'load-raml-url-start',
         'load-raml-url-end');
-      performance.measure('raml-expand-to-json', 'raml-expand-to-json-start',
-        'raml-expand-to-json-end');
-      performance.measure('worker-work-time', 'raml-worker-expansion-library-send',
-        'raml-worker-expansion-library-receive');
-      // performance.measure('raml2obj-enhace', 'raml2obj-enhace-start',
-      //   'raml2obj-enhace-end');
-      // performance.measure('raml2obj-arrays-to-object', 'raml2obj-arrays-to-object-start',
-      //   'raml2obj-arrays-to-object-end');
-      // // The expansion library
-      // performance.measure('raml2obj-expanding-root-types',
-      //   'raml2obj-expanding-root-types-start',
-      //   'raml2obj-expanding-root-types-end');
-      // performance.measure('raml2obj-make-consistent-root-types',
-      //   'raml2obj-make-consistent-root-types-start',
-      //   'raml2obj-make-consistent-root-types-end');
-      // performance.measure('raml2obj-make-consistent-raml',
-      //   'raml2obj-make-consistent-raml-start',
-      //   'raml2obj-make-consistent-raml-end');
-      // performance.measure('raml2obj-recursive-object-to-array',
-      //   'raml2obj-recursive-object-to-array-start',
-      //   'raml2obj-recursive-object-to-array-end');
-      // performance.measure('raml2obj-apply-raml-types',
-      //   'raml2obj-apply-raml-types-start',
-      //   'raml2obj-apply-raml-types-end');
       var items = window.performance.getEntriesByType('measure');
       console.log(items);
     }

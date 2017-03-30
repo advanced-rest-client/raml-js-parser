@@ -70,7 +70,7 @@
 </head>
 <body unresolved>
   <template is="dom-bind" id="app">
-    <raml-js-parser id="parser" normalize-raml on-raml-js-parser-ready="_parserReady"></raml-js-parser>
+    <raml-js-parser id="parser" json on-raml-js-parser-ready="_parserReady"></raml-js-parser>
 
     <div class="vertical-section-container centered">
       <h1>Drop RAML file here.</h1>
@@ -101,7 +101,6 @@
       </section>
 
       <section hidden$="[[!hasData]]">
-
         <paper-tabs selected="{{selectedOutput}}">
           <paper-tab>Structure</paper-tab>
           <!-- <paper-tab>JSON</paper-tab> -->

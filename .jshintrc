@@ -19,6 +19,7 @@
     "Polymer": true,
     "fetch": true,
     "raml2obj": true,
-    "Promise": true
+    "Promise": true,
+    "RAML": true
   }
 }

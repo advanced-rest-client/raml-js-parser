@@ -1,5 +1,6 @@
 {
   "name": "raml-js-parser",
+  "version": "2.0.0",
   "description": "RAML parser (JS version) as a web component",
   "author": "The Advanced REST client authors",
   "keywords": [
@@ -43,6 +44,5 @@
     "test",
     "tasks",
     "old.*"
-  ],
-  "version": "1.1.7"
+  ]
 }
