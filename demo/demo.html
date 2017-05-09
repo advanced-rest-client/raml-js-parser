@@ -21,6 +21,7 @@
   <link rel="import" href="../../iron-pages/iron-pages.html">
   <link rel="import" href="../../paper-input/paper-input.html">
   <link rel="import" href="../../raml-main-entry-lookup/raml-main-entry-lookup.html">
+  <link rel="import" href="../../web-unzip/web-unzip.html">
 
   <style is="custom-style" include="demo-pages-shared-styles">
     html,
@@ -74,8 +75,9 @@
 
     <div class="vertical-section-container centered">
       <h1>Drop RAML file here.</h1>
-      <file-drop multiple file="{{file}}" on-file-accepted="fileListChanged"></file-drop>
-      <raml-main-entry-lookup files="[[file]]" on-entry="entryFound"></raml-main-entry-lookup>
+      <file-drop multiple on-file-accepted="fileListChanged"></file-drop>
+      <web-unzip auto-read flat-structure on-web-unzip-read="_zipDataRead"></web-unzip>
+      <raml-main-entry-lookup on-entry="entryFound"></raml-main-entry-lookup>
 
       <h2>Or enter RAML file URL here</h2>
       <div class="url-field">

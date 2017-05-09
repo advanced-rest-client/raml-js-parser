@@ -1,5 +1,10 @@
 (function(scope) {
   'use strict';
+
+  function $(selector, node) {
+    return (node || document).querySelector(selector);
+  }
+
   scope.file = undefined;
   scope.noEntryPoint = false;
   scope.multipleEntryPoints = false;
@@ -12,13 +17,43 @@
   scope.ramlFileUrl =
     // 'https://raw.githubusercontent.com/advanced-rest-client/raml-example-api/master/api.raml';
     'https://cdn.rawgit.com/advanced-rest-client/drive-raml-api-v2/1f85d308/api.raml';
-  scope.fileListChanged = function() {
+  scope.fileListChanged = function(e) {
     scope.hasData = false;
     scope.noEntryPoint = false;
     scope.multipleEntryPoints = false;
     scope.entryPoints = [];
     scope.api = undefined;
+
+    //
+    // Depending on number of files and if file is zip the flow will be different.
+    //
+    var file = e.target.file;
+    scope.file = file;
+    if (file.length === 1) {
+      // no multiple files.
+      // If it is not zip file, it can go directly to the parser
+      if (file[0].name.indexOf('.zip') !== 1) {
+        // first we need to decompress the zip file, select main file and
+        // finally pass all file structure to the parser.
+        $('web-unzip').file = file;
+        return;
+      }
+      // Parse single file.
+      scope.parseRaml(file[0]);
+    } else {
+      // `raml-main-entry-lookup` will try to find the main RAML file.
+      // In most cases it will be `api.raml` located in main folder.
+      // If the element won't be able to determine which file is main it will return
+      // a list of candidates in the event.
+      $('raml-main-entry-lookup').files = file;
+    }
   };
+
+  scope._zipDataRead = function(e) {
+    scope.file = e.detail.fileStructure;
+    $('raml-main-entry-lookup').files = e.detail.fileStructure;
+  };
+
   scope.entryFound = function(e) {
     console.log(e.detail);
     var file = e.detail.entry;
@@ -45,7 +80,7 @@
     scope.working = true;
 
     var detail = {
-      'file': item.entry,
+      'file': item.entry || item,
       'files': scope.file
     };
     var event = scope.fire('parse-raml-file', detail);
