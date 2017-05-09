@@ -366,41 +366,15 @@ window.addEventListener('raml-json-enhance-ready', function(e) {
      * It's purpose is to provide a content of the file.
      */
     contentAsync: function(path) {
-      return new Promise(function(resolve, reject) {
-        this.findEntry(path)
-        .then(function(entry) {
-          if (!entry) {
-            reject(new Error('Entry not found.'));
-            return;
-          }
-          var reader;
-          if (entry.isFile) { // typeof FileEntry
-            entry.file(function(result) {
-              reader = new FileReader();
-              reader.addEventListener('loadend', function(e) {
-                resolve(e.target.result);
-              });
-              reader.addEventListener('error', function(e) {
-                reject(e);
-              });
-              reader.readAsText(result);
-            });
-          } else if (!entry.isDirectory) {
-            reader = new FileReader();
-            reader.addEventListener('loadend', function(e) {
-              resolve(e.target.result);
-            });
-            reader.addEventListener('error', function(e) {
-              reject(e);
-            });
-            reader.readAsText(entry);
-          } else {
-            reject(new Error('File entry for ' + path + ' do not exists.'));
-          }
-        })
-        .catch(function(e) {
-          reject(e);
-        });
+      return this.findEntry(path)
+      .then(function(entry) {
+        if (!entry) {
+          return Promise.reject(new Error('Entry not found.'));
+        }
+        return this._readFileContent(entry);
+      }.bind(this))
+      .then(function(content) {
+        return this.parseRaml(content);
       }.bind(this));
     },
     /**
@@ -424,35 +398,38 @@ window.addEventListener('raml-json-enhance-ready', function(e) {
     },
 
     // Load API from file defined in `ramlFile` attribute
-    loadFiles: function() {
-      var context = this;
+    loadFiles: function(ramlFile) {
+      ramlFile = ramlFile || this.ramlFile;
+      if (!ramlFile) {
+        return Promise.reject(new Error('No file entry available'));
+      }
+      return this._readFileContent(ramlFile)
+      .then(function(content) {
+        return this.parseRaml(content);
+      }.bind(this));
+    },
+    /**
+     * Read local file contents
+     *
+     * @param {File|Object} file A File instance or zip.js Entry processed by `web-unzip`
+     * @return {Promise} Resolved promise with dile content.
+     */
+    _readFileContent: function(file) {
       return new Promise(function(resolve, reject) {
-        if (!context.ramlFile) {
-          reject(new Error('No file entry available'));
-          return;
+        var content;
+        if (file instanceof File) {
+          content = file;
+        } else {
+          content = file.content;
         }
-        var reader;
-        if (context.ramlFile.isFile) { // typeof FileEntry
-          context.ramlFile.file(function(result) {
-            reader = new FileReader();
-            reader.addEventListener('loadend', function(e) {
-              resolve(context.parseRaml(e.target.result));
-            });
-            reader.addEventListener('error', function(e) {
-              reject(e);
-            });
-            reader.readAsText(result);
-          });
-        } else if (!context.ramlFile.isDirectory) {
-          reader = new FileReader();
-          reader.addEventListener('loadend', function(e) {
-            resolve(context.parseRaml(e.target.result));
-          });
-          reader.addEventListener('error', function(e) {
-            reject(e);
-          });
-          reader.readAsText(context.ramlFile);
-        }
+        var reader = new FileReader();
+        reader.addEventListener('loadend', function(e) {
+          resolve(e.target.result);
+        });
+        reader.addEventListener('error', function(e) {
+          reject(e);
+        });
+        reader.readAsText(content);
       });
     },
 
@@ -478,129 +455,21 @@ window.addEventListener('raml-json-enhance-ready', function(e) {
         (entries.length === 1 && entries[0] === this.ramlFile)) {
         return Promise.resolve(null);
       }
-      return new Promise(function(resolve) {
-        // quick run to find a file in a root dir
-        for (var i = 0, len = entries.length; i < len; i++) {
-          var entry = entries[i];
-          if (!entry.isDirectory) {
-            if (entry.fullPath === path) {
-              resolve(entry);
-              return;
-            }
-          }
+      for (var i = 0, len = entries.length; i < len; i++) {
+        var entry = entries[i];
+        var fullPath = entry.filename || entry.name; // Zip.js entry || File
+        if (fullPath === path || '/' + fullPath === path) {
+          return Promise.resolve(entry);
         }
-        var all = [];
-        entries.forEach(function(item) {
-          if (item.isDirectory) {
-            all.push(this._processEntryPath(item, path));
+        var index = fullPath.indexOf(path);
+        if (index > 0) {
+          if (path[0] === '/' || fullPath[index - 1] === '/') {
+            return Promise.resolve(entry);
           }
-        }, this);
-        Promise.all(all)
-          .then(function(entries) {
-            entries = entries.filter(function(item) {
-              return !!item;
-            });
-            if (entries.length > 0) {
-              resolve(entries[0]);
-              return;
-            }
-            resolve(null);
-          });
-      }.bind(this));
-    },
-    /**
-     * Recursively process the file entry that can be either a file
-     * or the directory. This function is seachring for a file identified
-     * by `path` parameter.
-     *
-     * @param {FileEntry|DirectoryEntry} entry An entry to process
-     * @param {String} path A path of the searched file
-     * @return {Promise} The promise will resolve when entry was found (will
-     * return FileEntry), when entry wans't found (will return null) or in case
-     * of directory it will return an array of recursive results.
-     */
-    _processEntryPath: function(entry, path) {
-      if (entry.isDirectory) {
-        var context = this;
-        return new Promise(function(resolve, reject) {
-          var reader = entry.createReader();
-          var all = [];
-          var readEntries = function() {
-            reader.readEntries(function(result) {
-              var res = context._readDirectoryEntries(result, all, path);
-              if (res) {
-                readEntries();
-              } else {
-                Promise.all(all)
-                  .then(function(candidates) {
-                    var result = context._cleanUpCandidates(candidates);
-                    resolve(result);
-                  })
-                  .catch(reject);
-              }
-            }, reject);
-          };
-          readEntries();
-        });
-      } else {
-        if (entry.fullPath === path) {
-          return Promise.resolve(entry);
-        } else if (entry.fullPath.substr(entry.fullPath.indexOf('/', 1)) === path) {
-          // If the user dropped full directory the it need to remove first dir path
-          return Promise.resolve(entry);
         }
       }
+      debugger;
       return Promise.resolve(null);
-    },
-
-    /**
-     * Handler function for Direcory's `readEntries` function.
-     * It processes all files that are in this directory.
-     *
-     * @param {Array} results A result of calling DirectoryEntry.readEntries
-     * @param {Array<Promise>} all A list of promises of reading a directory.
-     * @param {String} path A path of the searched file
-     */
-    _readDirectoryEntries: function(results, all, path) {
-      // No more entries
-      if (!results.length) {
-        return false;
-      } else {
-        for (var i = 0, len = results.length; i < len; i++) {
-          all.push(this._processEntryPath(results[i], path));
-        }
-        return true;
-      }
-    },
-
-    /**
-     * Cleans the array of files found in the files array.
-     * It always should be an array of nulls, array of nulls and one file
-     * found or just a file.
-     * It will remove all nulls and then look for a file to return.
-     *
-     * @param {Array} candidates A list of files returned by the recursive
-     * search function
-     * @return {FileEntry|null} A file or null if not found.
-     */
-    _cleanUpCandidates: function(candidates) {
-      candidates = candidates.filter(function(item) {
-        return !!item;
-      });
-      var len = candidates.length;
-      if (len === 0) {
-        return null;
-      }
-      for (var i = 0; i < len; i++) {
-        var item = candidates[i];
-        if (item instanceof Array) {
-          if (item.length > 0) {
-            return item[0];
-          }
-        } else {
-          return item;
-        }
-      }
     },
 
     _measureData: function() {

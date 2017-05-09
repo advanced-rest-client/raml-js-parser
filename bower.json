@@ -44,5 +44,8 @@
     "test",
     "tasks",
     "old.*"
-  ]
+  ],
+  "resolutions": {
+    "promise-polyfill": "^1.0.1"
+  }
 }
