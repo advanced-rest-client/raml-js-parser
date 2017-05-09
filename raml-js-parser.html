@@ -17,14 +17,12 @@ the License.
 The RAML parser (JS version) as a web component.
 
 The `<raml-js-parser>` can accept an URL from where the API definition can be
-downloaded or a RAML file from web filesystem. If the file contains references
-to other files they can be passed as well to the `files` attribute and the pareser
-will search files/directories structure for referenced file.
+downloaded or a RAML file from file input or with integration with `web-unzip` element with zip.js
+library output (slightly altered by the `web-unzip` component).
+Dependencies for the main RAML file should be set either on the element as a property or event's
+`defail` property. See API for more details.
 
-Files in web environment can be obtained if the user selects a file using
-input file element or drop directory / files to a droppable element.
-
-See demo for example of both.
+See demo for example of all use cases usages.
 
 ### Events based approach
 
@@ -121,6 +119,18 @@ window.addEventListener('raml-json-enhance-ready', function(e) {
   console.log(e.detail.json); // contains ARC elements data model.
 });
 ```
+
+## ZIP files and multiple files
+The element can work with zip files if using [web-unzip]() element. This element uses
+[zip.js](https://gildas-lormeau.github.io/zip.js/) for unzipping files and is setting the `content`
+property to each entry with the Blob of file contents.
+
+After that you can either manually tell the parser which file is the main file or you can use
+`raml-main-entry-lookup` element. The element will search the structure of files (either FileList
+or result of reading the zip file by zip.js) and will point a candidate for the main file.
+If candidates is more than one, then the user should pick the right one.
+
+Example of usage is in [demo.js](demo/demo.js) file.
 
 @group RAML Elements
 @element raml-js-parser
@@ -416,12 +426,6 @@ window.addEventListener('raml-json-enhance-ready', function(e) {
      */
     _readFileContent: function(file) {
       return new Promise(function(resolve, reject) {
-        var content;
-        if (file instanceof File) {
-          content = file;
-        } else {
-          content = file.content;
-        }
         var reader = new FileReader();
         reader.addEventListener('loadend', function(e) {
           resolve(e.target.result);
@@ -429,7 +433,7 @@ window.addEventListener('raml-json-enhance-ready', function(e) {
         reader.addEventListener('error', function(e) {
           reject(e);
         });
-        reader.readAsText(content);
+        reader.readAsText(file.content || file);
       });
     },
 
@@ -468,7 +472,6 @@ window.addEventListener('raml-json-enhance-ready', function(e) {
           }
         }
       }
-      debugger;
       return Promise.resolve(null);
     },
 
