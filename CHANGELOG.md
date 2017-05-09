@@ -1,3 +1,21 @@
+<a name="2.0.2"></a>
+## [2.0.2](https://github.com/advanced-rest-client/raml-js-parser/compare/2.0.1...v2.0.2) (2017-05-09)
+
+
+### Docs
+
+* Updated docs for zip ([7d94f9910af024d0687520a9edf86afee821f069](https://github.com/advanced-rest-client/raml-js-parser/commit/7d94f9910af024d0687520a9edf86afee821f069))
+
+### New
+
+* Added integration with zip.js through web-unzip element ([703fde899bcf924f9c1e8ea9d19e2b7e3c8273e0](https://github.com/advanced-rest-client/raml-js-parser/commit/703fde899bcf924f9c1e8ea9d19e2b7e3c8273e0))
+
+### Update
+
+* Replaced local polyfills with ARC project polyfills so it will be downloaded only once in the final build ([1b963dcdb16a71181919528dba607a0b373d235a](https://github.com/advanced-rest-client/raml-js-parser/commit/1b963dcdb16a71181919528dba607a0b373d235a))
+
+
+
 <a name="2.0.1"></a>
 ## [2.0.1](https://github.com/advanced-rest-client/raml-js-parser/compare/1.1.7...v2.0.1) (2017-03-30)
 
