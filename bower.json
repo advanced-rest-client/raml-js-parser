@@ -17,8 +17,8 @@
   },
   "dependencies": {
     "polymer": "Polymer/polymer#^1.0.0",
-    "fetch": "^2.0.1",
-    "promise-polyfill": "PolymerLabs/promise-polyfill#^1.0.1"
+    "arc-polyfills": "advanced-rest-client/arc-polyfills#^0.1.3",
+    "fetch-polyfill": "advanced-rest-client/fetch-polyfill#^0.1.1"
   },
   "devDependencies": {
     "iron-component-page": "polymerelements/iron-component-page#1.0.0",
@@ -35,7 +35,8 @@
     "iron-pages": "PolymerElements/iron-pages#^1.0.8",
     "paper-input": "PolymerElements/paper-input#^1.1.20",
     "file-drop": "advanced-rest-client/file-drop#^1.0.2",
-    "raml-main-entry-lookup": "advanced-rest-client/raml-main-entry-lookup#^1.0.1"
+    "raml-main-entry-lookup": "advanced-rest-client/raml-main-entry-lookup#^1.0.1",
+    "web-unzip": "advanced-rest-client/web-unzip#^0.1.3"
   },
   "ignore": [
     "**/.*",
