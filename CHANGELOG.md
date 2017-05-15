@@ -1,3 +1,13 @@
+<a name="2.0.4"></a>
+## [2.0.4](https://github.com/advanced-rest-client/raml-js-parser/compare/2.0.3...v2.0.4) (2017-05-15)
+
+
+### Fix
+
+* Fixed loading local files ([c115f22b195e67b4ebfe709660b297aaa3f03ff6](https://github.com/advanced-rest-client/raml-js-parser/commit/c115f22b195e67b4ebfe709660b297aaa3f03ff6))
+
+
+
 <a name="2.0.3"></a>
 ## [2.0.3](https://github.com/advanced-rest-client/raml-js-parser/compare/2.0.2...v2.0.3) (2017-05-09)
 
