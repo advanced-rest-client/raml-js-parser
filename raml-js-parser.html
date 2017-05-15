@@ -382,9 +382,6 @@ Example of usage is in [demo.js](demo/demo.js) file.
           return Promise.reject(new Error('Entry not found.'));
         }
         return this._readFileContent(entry);
-      }.bind(this))
-      .then(function(content) {
-        return this.parseRaml(content);
       }.bind(this));
     },
     /**
@@ -433,7 +430,15 @@ Example of usage is in [demo.js](demo/demo.js) file.
         reader.addEventListener('error', function(e) {
           reject(e);
         });
-        reader.readAsText(file.content || file);
+        var blob = file.content; // From the unzip library
+        if (!blob && file.entry && file.entry.content) {
+          // From the lookup function
+          blob = file.entry.content;
+        }
+        if (!blob) {
+          blob = file; // from the filesystem.
+        }
+        reader.readAsText(blob);
       });
     },
 
