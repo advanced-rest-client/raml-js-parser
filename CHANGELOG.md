@@ -1,3 +1,9 @@
+<a name="2.0.6"></a>
+## [2.0.6](https://github.com/advanced-rest-client/raml-js-parser/compare/2.0.4...2.0.6) (2018-11-08)
+
+
+
+
 <a name="2.0.5"></a>
 ## [2.0.5](https://github.com/advanced-rest-client/raml-js-parser/compare/2.0.4...v2.0.5) (2017-05-15)
 
